@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Game Engine - Persistent Architecture</title>
+    <title>CodeWiz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -169,10 +169,10 @@
         const OPENROUTER_API_KEY = "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";
 
         const MODEL_TIER_ROUTING = {
-            "low": "openrouter/free",
-            "mid": "google/gemini-2.5-pro-exp-03-25:free",
-            "high": "poolside/laguna-xs-2.1:free",
-            "best": "qwen/qwen3-coder:free"
+             "low": "openrouter/free",
+             "mid": "google/gemini-2.5-flash:free", // Updated to a stable free variant
+             "high": "qwen/qwen-2.5-coder-32b:free", // Updated to a highly available coding model
+             "best": "openrouter/free"              // Fallback baseline wrapper
         };
 
         const BASE_COSTS = { "low": 0, "mid": 50, "high": 150, "best": 350 };
