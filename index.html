@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Game Engine - CodeWisp Inspired</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans overflow-hidden">
+
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between z-10">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                <i class="fa-solid flex-shrink-0 fa-wand-magic-sparkles text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">WispEngine</h1>
+                <p class="text-xs text-slate-400">AI-Powered Game Generation</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div id="credit-display" class="hidden items-center bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full text-sm">
+                <i class="fa-solid fa-bolt text-amber-400 mr-2"></i>
+                <span id="user-credits" class="font-semibold text-amber-300">1,000</span>
+                <span class="text-slate-400 ml-1">credits</span>
+            </div>
+            <div id="user-profile" class="hidden items-center space-x-2">
+                <span class="text-sm text-slate-300" id="username-display">Developer</span>
+                <button onclick="logout()" class="text-xs text-rose-400 hover:text-rose-300 underline">Sign Out</button>
+            </div>
+            <button id="btn-trigger-login" onclick="openLoginModal()" class="bg-indigo-600 hover:bg-indigo-500 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                Sign In
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        
+        <aside class="w-80 bg-slate-900 border-r border-slate-800 p-4 flex flex-col space-y-6 overflow-y-auto">
+            <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">API Configuration</h3>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">OpenRouter API Key</label>
+                    <div class="relative">
+                        <input type="password" id="api-key-input" placeholder="sk-or-..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors">
+                        <button onclick="toggleApiKeyVisibility()" class="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300">
+                            <i id="eye-icon" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Keys are stored locally in your browser.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">AI Model Tier</label>
+                    <select id="model-select" onchange="updateEstimatedCost()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
+                        <option value="low">Low Tier (Auto Free Baseline)</option>
+                        <option value="mid">Mid Tier (Gemini 2.5 Pro Exp Free)</option>
+                        <option value="high">High Tier (Laguna XS Coding Free)</option>
+                        <option value="best" selected>Best Tier (Qwen 3 Coder Free)</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr class="border-slate-800">
+
+            <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cost Matrix Reference</h3>
+                <div class="bg-slate-950 rounded-lg p-3 text-xs space-y-2 border border-slate-800">
+                    <div class="flex justify-between"><span class="text-slate-500">Low Tier Base:</span> <span class="text-emerald-400 font-mono">0 cr</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Mid Tier Base:</span> <span class="text-slate-300 font-mono">50 cr</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">High Tier Base:</span> <span class="text-slate-300 font-mono">150 cr</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Best Tier Base:</span> <span class="text-slate-300 font-mono">350 cr</span></div>
+                    <div class="pt-2 border-t border-slate-900 text-[11px]">
+                        <span class="text-indigo-400 font-semibold">Multipliers:</span> Length &lt;100ch (<span class="font-mono">1x</span>) | 100-300ch (<span class="font-mono">2x</span>) | &gt;300ch (<span class="font-mono">3x</span>)
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-auto pt-4 space-y-2">
+                <button id="btn-download" disabled onclick="downloadGameCode()" class="w-full bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-800 text-slate-200 text-sm font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Download Game File</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col bg-slate-950 overflow-hidden">
+            
+            <div class="bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between h-12 flex-shrink-0">
+                <div class="flex space-x-2">
+                    <button id="tab-preview" onclick="switchTab('preview')" class="text-sm font-medium px-4 py-3 border-b-2 border-indigo-500 text-indigo-400 transition-all">
+                        <i class="fa-solid fa-play mr-1.5 text-xs"></i>Live Game Preview
+                    </button>
+                    <button id="tab-code" onclick="switchTab('code')" class="text-sm font-medium px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">
+                        <i class="fa-solid fa-code mr-1.5 text-xs"></i>Source Code Viewer
+                    </button>
+                </div>
+                <div id="status-indicator" class="text-xs text-slate-500 flex items-center space-x-1.5">
+                    <span class="h-2 w-2 rounded-full bg-slate-600 block"></span>
+                    <span>Engine Idle</span>
+                </div>
+            </div>
+
+            <div class="flex-1 relative overflow-hidden bg-slate-950">
+                <div id="pane-preview" class="absolute inset-0 w-full h-full p-4 block">
+                    <div class="w-full h-full rounded-xl bg-slate-900 border border-slate-800 overflow-hidden relative shadow-2xl shadow-black/50">
+                        <iframe id="game-frame" class="w-full h-full bg-white hidden"></iframe>
+                        <div id="preview-placeholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center select-none">
+                            <div class="bg-slate-800/40 p-5 rounded-full border border-slate-700/50 text-slate-600 mb-4 animate-pulse">
+                                <i class="fa-solid fa-gamepad text-5xl"></i>
+                            </div>
+                            <h3 class="text-base font-semibold text-slate-400">Sandbox Ready for Input</h3>
+                            <p class="text-xs text-slate-500 max-w-sm mt-1">Configure your API Key, write a descriptive prompt below, and unleash the AI engine.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pane-code" class="absolute inset-0 w-full h-full p-4 hidden">
+                    <textarea id="code-viewer" readonly class="w-full h-full bg-slate-900 border border-slate-800 rounded-xl p-4 font-mono text-xs text-emerald-400 placeholder-slate-700 resize-none focus:outline-none" placeholder=""></textarea>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-900 border-t border-slate-800 space-y-2 flex-shrink-0">
+                <div class="flex space-x-3 items-end">
+                    <div class="flex-1 relative">
+                        <textarea id="prompt-input" rows="2" oninput="updateEstimatedCost()" placeholder="Describe your web game concept in detail (e.g., 'A neon synthwave retro style infinite cycle flappy-bird clone with a dynamic canvas score tracker...')" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-24 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors resize-none"></textarea>
+                        <div class="absolute right-3 bottom-3 text-[11px] text-slate-500 pointer-events-none select-none">
+                            Est. Cost: <span id="estimated-cost" class="font-mono text-amber-400">0</span> cr
+                        </div>
+                    </div>
+                    <button id="btn-generate" onclick="generateGame()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-5 py-4 rounded-xl transition-all h-[58px] flex items-center space-x-2 shadow-lg shadow-indigo-600/20 active:scale-95">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Compile Game</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-20 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <div id="login-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl transform scale-95 transition-all">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="bg-indigo-600/20 text-indigo-400 p-2 rounded-lg">
+                    <i class="fa-solid fa-user-astronaut text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">Establish Developer Session</h3>
+                    <p class="text-xs text-slate-500">Access local project compilers</p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Developer Alias</label>
+                    <input type="text" id="modal-username" placeholder="e.g., AdaLovelace" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                <div class="bg-indigo-950/40 border border-indigo-900/50 rounded-lg p-3 text-xs text-indigo-300 flex items-start space-x-2">
+                    <i class="fa-solid fa-gift mt-0.5 text-amber-400"></i>
+                    <span>First-time registrations automatically receive a deployment grant of <strong>1,000 complimentary operational platform credits</strong>.</span>
+                </div>
+                <div class="flex space-x-2 pt-2">
+                    <button onclick="closeLoginModal()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium py-2 rounded-lg transition-colors">Cancel</button>
+                    <button onclick="submitLogin()" class="w-1/2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium py-2 rounded-lg transition-colors shadow-lg shadow-indigo-600/10">Initialize</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // OpenRouter Tier Mappings
+        const MODEL_TIER_ROUTING = {
+            "low": "openrouter/free",
+            "mid": "google/gemini-2.5-pro-exp-03-25:free",
+            "high": "poolside/laguna-xs-2.1:free",
+            "best": "qwen/qwen3-coder:free"
+        };
+
+        const BASE_COSTS = {
+            "low": 0,
+            "mid": 50,
+            "high": 150,
+            "best": 350
+        };
+
+        // Application State Management
+        let currentUser = null;
+        let generatedCodeStore = "";
+
+        // Lifecycle Hooks On App Load
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeSessionState();
+            loadCachedApiKey();
+            updateEstimatedCost();
+        });
+
+        // 1. Authentication Engine
+        function initializeSessionState() {
+            const cachedUser = localStorage.getItem('wisp_user');
+            if (cachedUser) {
+                currentUser = JSON.parse(cachedUser);
+                syncUserInterface();
+            } else {
+                openLoginModal();
+            }
+        }
+
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+            document.getElementById('login-modal').classList.add('flex');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.remove('flex');
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function submitLogin() {
+            const usernameInput = document.getElementById('modal-username').value.trim();
+            if (!usernameInput) {
+                showToast("Invalid Configuration", "An operational handle is required.", "error");
+                return;
+            }
+
+            // Mock Data Query or Storage Setup
+            let userData = localStorage.getItem(`wisp_profile_${usernameInput}`);
+            if (userData) {
+                currentUser = JSON.parse(userData);
+            } else {
+                // Initialize default metrics for first-time profile setups
+                currentUser = {
+                    username: usernameInput,
+                    credits: 1000
+                };
+                localStorage.setItem(`wisp_profile_${usernameInput}`, JSON.stringify(currentUser));
+            }
+
+            localStorage.setItem('wisp_user', JSON.stringify(currentUser));
+            syncUserInterface();
+            closeLoginModal();
+            showToast("Session Online", `Authenticated as pipeline node: ${currentUser.username}`, "success");
+        }
+
+        function logout() {
+            if(currentUser) {
+                // Save current profile buffer state out before clearing active active state pointers
+                localStorage.setItem(`wisp_profile_${currentUser.username}`, JSON.stringify(currentUser));
+            }
+            localStorage.removeItem('wisp_user');
+            currentUser = null;
+            document.getElementById('credit-display').classList.replace('flex', 'hidden');
+            document.getElementById('user-profile').classList.replace('flex', 'hidden');
+            document.getElementById('btn-trigger-login').classList.remove('hidden');
+            openLoginModal();
+        }
+
+        function syncUserInterface() {
+            if (!currentUser) return;
+            document.getElementById('user-credits').innerText = currentUser.credits.toLocaleString();
+            document.getElementById('username-display').innerText = currentUser.username;
+            
+            document.getElementById('credit-display').classList.replace('hidden', 'flex');
+            document.getElementById('user-profile').classList.replace('hidden', 'flex');
+            document.getElementById('btn-trigger-login').classList.add('hidden');
+        }
+
+        // 2. Cost Compiling Systems Logic
+        function calculateCurrentTransactionCost() {
+            const selectedTier = document.getElementById('model-select').value;
+            const promptValue = document.getElementById('prompt-input').value;
+            const promptLength = promptValue.length;
+
+            const baseCost = BASE_COSTS[selectedTier];
+            let multiplier = 1;
+
+            if (promptLength >= 100 && promptLength <= 300) {
+                multiplier = 2;
+            } else if (promptLength > 300) {
+                multiplier = 3;
+            }
+
+            return baseCost * multiplier;
+        }
+
+        function updateEstimatedCost() {
+            const cost = calculateCurrentTransactionCost();
+            document.getElementById('estimated-cost').innerText = cost;
+        }
+
+        // 3. API Storage Cache Sync
+        function loadCachedApiKey() {
+            const savedKey = localStorage.getItem('wisp_or_key');
+            if (savedKey) {
+                document.getElementById('api-key-input').value = savedKey;
+            }
+        }
+
+        function toggleApiKeyVisibility() {
+            const target = document.getElementById('api-key-input');
+            const icon = document.getElementById('eye-icon');
+            if (target.type === "password") {
+                target.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                target.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // 4. Engine Generator Orchestrator
+        async function generateGame() {
+            // Guard conditions
+            if (!currentUser) {
+                openLoginModal();
+                showToast("Access Restricted", "Initialize identity node first.", "warning");
+                return;
+            }
+
+            const apiKey = document.getElementById('api-key-input').value.trim();
+            if (!apiKey) {
+                showToast("API Authentication Error", "An OpenRouter API key is required to build code via LLM routers.", "error");
+                return;
+            }
+            // Save the valid structure
+            localStorage.setItem('wisp_or_key', apiKey);
+
+            const userPrompt = document.getElementById('prompt-input').value.trim();
+            if (!userPrompt) {
+                showToast("Syntax Validation Error", "Prompt parameter mapping block is completely blank.", "warning");
+                return;
+            }
+
+            const transactionCost = calculateCurrentTransactionCost();
+            const chosenTier = document.getElementById('model-select').value;
+
+            // Enforce Balance Constraints unless bypassed by Always-Free Baseline
+            if (chosenTier !== "low" && currentUser.credits < transactionCost) {
+                showToast("Compute Refused", `Insufficient credit depth. Core requires ${transactionCost} cr but balance holds ${currentUser.credits} cr.`, "error");
+                return;
+            }
+
+            // Lock UI and advance pipeline state
+            setEngineStatus(true, "Compiling Engine Logic...");
+
+            const targetModelIdentifier = MODEL_TIER_ROUTING[chosenTier];
+            
+            // Structural System Blueprint directives
+            const systemicBlueprintPrompt = `You are an expert full-stack developer and professional game engineer. 
+Your objective is to generate entirely functional, complete, single-file browser application web games written from scratch according to the customer prompt request parameters.
+
+CRITICAL ARCHITECTURE INSTRUCTIONS:
+1. Return exclusively high-quality, fully production-ready code blocks inside a clean single \`html\` format wrapper markdown container.
+2. Incorporate CSS (Tailwind or embedded style components blocks) and all necessary modern standard ECMAScript modules code functionality sequentially inside the single asset payload.
+3. Include clear game loops, asset rendering mock layers using dynamic UI layouts or raw HTML5 canvases, complete mechanics engines, clear score loops, restart workflows, and smooth controls responsive to keyboard inputs or mouse/touch arrays.
+4. DO NOT provide markdown architectural explanations, external repository references, notes, preamble text strings, or trailing annotations outside of the direct code scope blocks. Output standard syntax structures.`;
+
+            try {
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": window.location.href,
+                        "X-Title": "WispEngine Workbench"
+                    },
+                    body: JSON.stringify({
+                        model: targetModelIdentifier,
+                        messages: [
+                            { role: "system", content: systemicBlueprintPrompt },
+                            { role: "user", content: userPrompt }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorDetail = await response.text();
+                    throw new Error(`API Transaction Response Code Error: ${response.status} - ${errorDetail}`);
+                }
+
+                const resultPayload = await response.json();
+                const rawModelOutputText = resultPayload.choices[0]?.message?.content;
+
+                if (!rawModelOutputText) {
+                    throw new Error("Pipeline returned an empty completion bundle token array stream.");
+                }
+
+                // Process Payload Output Extract
+                const parsedExecutableCode = extractHTMLContent(rawModelOutputText);
+                
+                if (!parsedExecutableCode) {
+                    throw new Error("Malformed processing structure: Regex parsing filters failed to isolate clean code blocks.");
+                }
+
+                // Complete transactional credit billing deduction logic routines
+                if (chosenTier !== "low") {
+                    currentUser.credits -= transactionCost;
+                    localStorage.setItem(`wisp_profile_${currentUser.username}`, JSON.stringify(currentUser));
+                    localStorage.setItem('wisp_user', JSON.stringify(currentUser));
+                    syncUserInterface();
+                }
+
+                // Save to local cache state stores
+                generatedCodeStore = parsedExecutableCode;
+                document.getElementById('code-viewer').value = generatedCodeStore;
+
+                // Load payload executions inside sandbox containers
+                injectCodeToSandboxPreview(generatedCodeStore);
+                switchTab('preview');
+                
+                // Toggle asset interaction button states enabled
+                document.getElementById('btn-download').disabled = false;
+                showToast("Compilation Success", `Asset synthesized successfully. Deducted ${transactionCost} cr.`, "success");
+
+            } catch (err) {
+                console.error(err);
+                showToast("Engine Fail State Exception", err.message || "An error occurred during compilation.", "error");
+            } finally {
+                setEngineStatus(false);
+            }
+        }
+
+        // Helper Strategy regex parser utilities targeting code isolation filters
+        function extractHTMLContent(rawMarkdownText) {
+            // Filter target structural formatting constructs
+            const markdownMatchPattern = /```html([\s\S]*?)```/i;
+            const executedMatchGroup = rawMarkdownText.match(markdownMatchPattern);
+            
+            if (executedMatchGroup && executedMatchGroup[1]) {
+                return executedMatchGroup[1].trim();
+            }
+
+            // Fallback strategy pattern checking for direct bare inline raw structures
+            if (rawMarkdownText.trim().toLowerCase().startsWith("<!doctype html") || rawMarkdownText.trim().toLowerCase().startsWith("<html")) {
+                return rawMarkdownText.trim();
+            }
+
+            return null;
+        }
+
+        function injectCodeToSandboxPreview(executableMarkupSource) {
+            const iframeRef = document.getElementById('game-frame');
+            const placeholderElement = document.getElementById('preview-placeholder');
+
+            placeholderElement.classList.replace('flex', 'hidden');
+            iframeRef.classList.remove('hidden');
+
+            // Force instantiation refresh clean reload state to clear lingering animation execution variables 
+            iframeRef.src = "about:blank";
+            
+            setTimeout(() => {
+                const embeddedContextDocument = iframeRef.contentWindow.document;
+                embeddedContextDocument.open();
+                embeddedContextDocument.write(executableMarkupSource);
+                embeddedContextDocument.close();
+            }, 50);
+        }
+
+        // 5. Code Exporters Architecture
+        function downloadGameCode() {
+            if (!generatedCodeStore) return;
+            
+            const contentBlob = new Blob([generatedCodeStore], { type: 'text/html' });
+            const deploymentVirtualNodeAnchor = document.createElement('a');
+            
+            deploymentVirtualNodeAnchor.href = URL.createObjectURL(contentBlob);
+            deploymentVirtualNodeAnchor.download = 'index.html';
+            
+            document.body.appendChild(deploymentVirtualNodeAnchor);
+            deploymentVirtualNodeAnchor.click();
+            
+            // Garbage collection clean routines
+            document.body.removeChild(deploymentVirtualNodeAnchor);
+            URL.revokeObjectURL(deploymentVirtualNodeAnchor.href);
+            showToast("FileSystem Export", "Source payload written to disk file: 'index.html'", "success");
+        }
+
+        // 6. Presentation Layer Interface Controllers
+        function switchTab(activeViewMode) {
+            const previewTabButton = document.getElementById('tab-preview');
+            const codeTabButton = document.getElementById('tab-code');
+            const previewPane = document.getElementById('pane-preview');
+            const codePane = document.getElementById('pane-code');
+
+            if (activeViewMode === 'preview') {
+                previewTabButton.className = "text-sm font-medium px-4 py-3 border-b-2 border-indigo-500 text-indigo-400 transition-all";
+                codeTabButton.className = "text-sm font-medium px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all";
+                previewPane.classList.replace('hidden', 'block');
+                codePane.classList.replace('block', 'hidden');
+            } else {
+                codeTabButton.className = "text-sm font-medium px-4 py-3 border-b-2 border-indigo-500 text-indigo-400 transition-all";
+                previewTabButton.className = "text-sm font-medium px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all";
+                codePane.classList.replace('hidden', 'block');
+                previewPane.classList.replace('block', 'hidden');
+            }
+        }
+
+        function setEngineStatus(isProcessing, messagingLabel = "Engine Idle") {
+            const executionIndicatorNode = document.getElementById('status-indicator');
+            const buildBtn = document.getElementById('btn-generate');
+            const promptField = document.getElementById('prompt-input');
+
+            if (isProcessing) {
+                executionIndicatorNode.innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-500 block animate-ping"></span><span class="text-amber-400 font-medium">${messagingLabel}</span>`;
+                buildBtn.disabled = true;
+                buildBtn.className = "bg-slate-800 text-slate-500 font-medium text-sm px-5 py-4 rounded-xl cursor-not-allowed h-[58px] flex items-center space-x-2 shadow-none";
+                promptField.disabled = true;
+            } else {
+                executionIndicatorNode.innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500 block"></span><span class="text-slate-400">Engine Idle</span>`;
+                buildBtn.disabled = false;
+                buildBtn.className = "bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-5 py-4 rounded-xl transition-all h-[58px] flex items-center space-x-2 shadow-lg shadow-indigo-600/20 active:scale-95";
+                promptField.disabled = false;
+            }
+        }
+
+        // Real-time custom toast Notification systems implementation 
+        function showToast(title, body, configurationClassification = "success") {
+            const notificationsContainer = document.getElementById('toast-container');
+            const uniqueToastNodeId = "toast_" + Date.now();
+
+            let designBorderToneClass = "border-indigo-500 bg-slate-900";
+            let configurationIconMarkup = `<i class="fa-solid fa-circle-check text-indigo-400 mt-0.5"></i>`;
+
+            if (configurationClassification === "error") {
+                designBorderToneClass = "border-rose-500 bg-slate-900";
+                configurationIconMarkup = `<i class="fa-solid fa-triangle-exclamation text-rose-400 mt-0.5"></i>`;
+            } else if (configurationClassification === "warning") {
+                designBorderToneClass = "border-amber-500 bg-slate-900";
+                configurationIconMarkup = `<i class="fa-solid fa-circle-exclamation text-amber-400 mt-0.5"></i>`;
+            }
+
+            const markupTemplateBuffer = `
+                <div id="${uniqueToastNodeId}" class="w-72 border-l-4 ${designBorderToneClass} p-4 rounded-r-xl shadow-xl flex space-x-3 pointer-events-auto transform translate-x-12 opacity-0 transition-all duration-300">
+                    <div class="flex-shrink-0">${configurationIconMarkup}</div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-xs font-bold text-slate-200 truncate">${title}</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${body}</p>
+                    </div>
+                    <button onclick="document.getElementById('${uniqueToastNodeId}').remove()" class="text-slate-600 hover:text-slate-400 flex-shrink-0 self-start"><i class="fa-solid fa-xmark text-xs"></i></button>
+                </div>
+            `;
+
+            notificationsContainer.insertAdjacentHTML('beforeend', markupTemplateBuffer);
+            
+            // Force animation sequence flow pipeline execution triggers
+            setTimeout(() => {
+                const targetRef = document.getElementById(uniqueToastNodeId);
+                if(targetRef) {
+                    targetRef.classList.remove('translate-x-12', 'opacity-0');
+                }
+            }, 10);
+
+            // Automatic garbage cleanup processing execution queues
+            setTimeout(() => {
+                const targetRef = document.getElementById(uniqueToastNodeId);
+                if(targetRef) {
+                    targetRef.classList.add('translate-x-12', 'opacity-0');
+                    setTimeout(() => targetRef.remove(), 300);
+                }
+            }, 6000);
+        }
+    </script>
+</body>
+</html>
