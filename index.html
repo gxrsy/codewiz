@@ -50,10 +50,10 @@
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">AI Model Intelligence</label>
                     <select id="model-select" onchange="updateEstimatedCost()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
-                        <option value="low" selected>Standard Coder (Qwen 2.5 Coder Free)</option>
-                        <option value="mid">Balanced Architect (Llama 3.1 Free)</option>
-                        <option value="high">Advanced Reasoning (Gemma 2 Free)</option>
-                        <option value="best">Premium Pro Router (Auto Free Fallback)</option>
+                        <option value="low" selected>Auto Free Router (Highly Recommended)</option>
+                        <option value="mid">Llama 3 Stable Free</option>
+                        <option value="high">Mistral Free Fallback</option>
+                        <option value="best">Universal Auto-Tier</option>
                     </select>
                 </div>
             </div>
@@ -179,14 +179,14 @@
         // ==========================================
         // HARDCODED OPENROUTER API KEY VALUE PROPERTY
         // ==========================================
-        const OPENROUTER_API_KEY = "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";
+        const OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY_HERE";
 
-        // Verified working, stable 2026 free models mapping context pipelines
+        // Re-routed to the highly redundant universal endpoints to ignore 404 deprecations
         const MODEL_TIER_ROUTING = {
-            "low": "qwen/qwen-2.5-coder-32b-instruct:free", 
-            "mid": "meta-llama/llama-3.1-8b-instruct:free", 
-            "high": "google/gemma-2-9b-it:free", 
-            "best": "openrouter/free" 
+            "low": "openrouter/auto:free", 
+            "mid": "meta-llama/llama-3-8b-instruct:free", 
+            "high": "mistralai/mistral-7b-instruct:free", 
+            "best": "openrouter/auto:free" 
         };
 
         const BASE_COSTS = { "low": 0, "mid": 0, "high": 0, "best": 0 };
@@ -405,7 +405,6 @@
             showToast("Project Purged", "Workspace asset snapshot deleted.", "warning");
         }
 
-        // Setup clear workspace defaults
         function resetWorkspaceToNewGame() {
             activeProjectId = null;
             generatedCodeStore = "";
@@ -459,7 +458,7 @@
             document.getElementById('estimated-cost').innerText = calculateCurrentTransactionCost();
         }
 
-        // FIXED INTELLIGENT CODEWIZ GENERATOR PIPELINE
+        // UNIVERSAL RESILIENT CODEWIZ GENERATOR PIPELINE
         async function generateGame() {
             if (!currentUser) {
                 openAuthModal('login');
