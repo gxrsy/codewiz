@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Game Engine - Iterative Studio</title>
+    <title>AI Game Engine - Dynamic Stream Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -22,7 +22,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">WispEngine</h1>
-                <p class="text-xs text-slate-400">Persistent Iterative Workspace</p>
+                <p class="text-xs text-slate-400">Stream-Optimized Development Terminal</p>
             </div>
         </div>
 
@@ -50,10 +50,10 @@
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">AI Model Tier</label>
                     <select id="model-select" onchange="updateEstimatedCost()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
-                        <option value="low">Low Tier (Auto Free Baseline)</option>
-                        <option value="mid">Mid Tier (Gemini Flash Free)</option>
-                        <option value="high">High Tier (Llama 3 Free)</option>
-                        <option value="best" selected>Best Tier (Auto-Routing Premium Free)</option>
+                        <option value="low" selected>Low Tier (Auto Free Baseline)</option>
+                        <option value="mid">Mid Tier (Poolside Laguna XS)</option>
+                        <option value="high">High Tier (Cohere North Mini Code)</option>
+                        <option value="best">Best Tier (Auto Free Fallback)</option>
                     </select>
                 </div>
             </div>
@@ -181,26 +181,26 @@
         // ==========================================
         const OPENROUTER_API_KEY = "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";
 
+        // Mapped to specific 2026 free high-performance code generation engines
         const MODEL_TIER_ROUTING = {
             "low": "openrouter/free", 
-            "mid": "google/gemini-flash-1.5:free", 
-            "high": "meta-llama/llama-3-8b-instruct:free", 
+            "mid": "poolside/laguna-xs-2.1:free", 
+            "high": "cohere/north-mini-code:free", 
             "best": "openrouter/free" 
         };
 
-        const BASE_COSTS = { "low": 5, "mid": 50, "high": 150, "best": 350 };
+        const BASE_COSTS = { "low": 0, "mid": 50, "high": 150, "best": 350 };
 
         let currentUser = null;
         let currentAuthMode = "login"; 
         let generatedCodeStore = "";
-        let activeProjectId = null; // Keeps track of what project is being altered
+        let activeProjectId = null; 
 
         window.addEventListener('DOMContentLoaded', () => {
             initializeSessionState();
             updateEstimatedCost();
         });
 
-        // 1. Authentication & Security Routine Modals
         function initializeSessionState() {
             const cachedUser = sessionStorage.getItem('wisp_active_session');
             if (cachedUser) {
@@ -320,21 +320,18 @@
             renderProjectsSidebarList();
         }
 
-        // 2. Persistent Storage Projects Manager Architecture
         function saveOrUpdateGameInProfile(promptText, completeSourceCode) {
             if(!currentUser) return;
 
             if (activeProjectId) {
-                // Update implementation context loop
                 const targetedIndex = currentUser.projects.findIndex(p => p.id === activeProjectId);
                 if (targetedIndex !== -1) {
                     currentUser.projects[targetedIndex].code = completeSourceCode;
                     currentUser.projects[targetedIndex].prompt = promptText;
                     currentUser.projects[targetedIndex].timestamp = new Date().toLocaleDateString();
-                    showToast("Snapshot Updated", "Modifications successfully integrated into active file.", "success");
+                    showToast("Snapshot Updated", "Modifications integrated successfully.", "success");
                 }
             } else {
-                // Create brand new profile block
                 const structuredProjectItem = {
                     id: "proj_" + Date.now(),
                     timestamp: new Date().toLocaleDateString(),
@@ -344,7 +341,7 @@
                 };
                 currentUser.projects.unshift(structuredProjectItem);
                 activeProjectId = structuredProjectItem.id;
-                showToast("Compilation Success", "New game configuration saved safely.", "success");
+                showToast("Compilation Success", "New game configuration stored.", "success");
             }
 
             saveProfileStateToStorage(currentUser);
@@ -382,7 +379,7 @@
             activeProjectId = project.id;
             generatedCodeStore = project.code;
             document.getElementById('code-viewer').value = generatedCodeStore;
-            document.getElementById('prompt-input').value = ""; // Clear for next iterative update directive
+            document.getElementById('prompt-input').value = ""; 
             
             injectCodeToSandboxPreview(generatedCodeStore);
             switchTab('preview');
@@ -391,11 +388,11 @@
             syncWorkspaceUIVisuals();
             renderProjectsSidebarList();
             updateEstimatedCost();
-            showToast("Project Initialized", "Loaded template into iterative compiler layout.", "success");
+            showToast("Project Initialized", "Loaded archive package.", "success");
         }
 
         function deleteSavedProjectCode(event, projectId) {
-            event.stopPropagation(); // Stop parent buttons firing selection rules
+            event.stopPropagation(); 
             currentUser.projects = currentUser.projects.filter(p => p.id !== projectId);
             
             if (activeProjectId === projectId) {
@@ -445,7 +442,6 @@
             }
         }
 
-        // 3. Dynamic Cost Tracking Matrices
         function calculateCurrentTransactionCost() {
             const selectedTier = document.getElementById('model-select').value;
             const promptLength = document.getElementById('prompt-input').value.length;
@@ -462,7 +458,7 @@
             document.getElementById('estimated-cost').innerText = calculateCurrentTransactionCost();
         }
 
-        // 4. API Orchestrator Logic
+        // UPGRADED API GENERATOR ROUTINE WITH SHORT-CIRCUIT TIMEOUT PROTECTION AND STRING FALLBACKS
         async function generateGame() {
             if (!currentUser) {
                 openAuthModal('login');
@@ -490,9 +486,13 @@
             }
 
             setEngineStatus(true, activeProjectId ? "Integrating Modifications..." : "Compiling Engine Logic...");
+            
+            // Switch view automatically to Code Viewer tab so user can verify if streaming incoming text is active
+            switchTab('code');
+            document.getElementById('code-viewer').value = "Connecting to pipeline compiler nodes...\n";
+
             const targetModelIdentifier = MODEL_TIER_ROUTING[chosenTier];
             
-            // SYSTEM PROMPT CHANGES DYNAMICALLY IF WE ARE IN EDIT MODE vs NEW GAME MODE
             let systemicBlueprintPrompt = "";
             let completeUserPayloadPrompt = "";
 
@@ -500,21 +500,27 @@
                 systemicBlueprintPrompt = `You are an expert game developer modifying an existing codebase. 
 Your objective is to read the provided source code asset and apply the user's modifications or requested feature sets cleanly.
 Return exclusively the updated, fully modified single-file wrapper containing all production HTML/CSS/JS components. 
-DO NOT provide architectural descriptions, text changes notes, or instructions outside the clean code block.`;
+DO NOT provide architectural descriptions, text changes notes, or instructions outside the clean \`html\` markup wrapper block.`;
                 
-                completeUserPayloadPrompt = `=== CURRENT EXISTING GAME CODE TO EDIT ===\n${generatedCodeStore}\n\n=== USER REQUESTED MODIFICATIONS ===\n${userPrompt}\n\nApply updates and return the complete updated single-file code.`;
+                completeUserPayloadPrompt = `=== CURRENT EXISTING GAME CODE TO EDIT ===\n${generatedCodeStore}\n\n=== USER REQUESTED MODIFICATIONS ===\n${userPrompt}\n\nApply updates and return the complete updated single-file code inside markdown blocks.`;
             } else {
                 systemicBlueprintPrompt = `You are an expert full-stack developer and professional game engineer. Return exclusively functional, modern web game components inside a clean single \`html\` markup wrapper markdown block containing inline Tailwind CSS style matrices and ES Modules Javascript logic loops. DO NOT provide annotations or explanations.`;
                 completeUserPayloadPrompt = userPrompt;
             }
 
+            // Set up an AbortController with a definitive 45-second timeout window to prevent standard hangs
+            const networkTimeoutController = new AbortController();
+            const timeoutThreadId = setTimeout(() => networkTimeoutController.abort(), 45000);
+
             try {
+                // Utilizing non-streaming endpoint fallback for reliable handling on massive context injection strings
                 const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
                         "Content-Type": "application/json"
                     },
+                    signal: networkTimeoutController.signal,
                     body: JSON.stringify({
                         model: targetModelIdentifier,
                         messages: [
@@ -524,6 +530,8 @@ DO NOT provide architectural descriptions, text changes notes, or instructions o
                     })
                 });
 
+                clearTimeout(timeoutThreadId);
+
                 if (!response.ok) throw new Error(`API Connection Exception Status: ${response.status}`);
 
                 const resultPayload = await response.json();
@@ -531,7 +539,7 @@ DO NOT provide architectural descriptions, text changes notes, or instructions o
                 if (!rawModelOutputText) throw new Error("Empty payload stream returned from system router.");
 
                 const parsedExecutableCode = extractHTMLContent(rawModelOutputText);
-                if (!parsedExecutableCode) throw new Error("Regex workflow parsing metrics failed to cleanly extract core markup elements.");
+                if (!parsedExecutableCode) throw new Error("Regex extraction failed. The compilation engine output structure was invalid.");
 
                 if (chosenTier !== "low") {
                     currentUser.credits -= transactionCost;
@@ -540,20 +548,24 @@ DO NOT provide architectural descriptions, text changes notes, or instructions o
                 generatedCodeStore = parsedExecutableCode;
                 document.getElementById('code-viewer').value = generatedCodeStore;
                 
-                // Pass active input string logic parameters
                 const finalSaveLabel = activeProjectId ? currentUser.projects.find(p => p.id === activeProjectId).prompt : userPrompt;
                 saveOrUpdateGameInProfile(finalSaveLabel, generatedCodeStore);
                 
                 injectCodeToSandboxPreview(generatedCodeStore);
                 switchTab('preview');
                 
-                document.getElementById('prompt-input').value = ""; // Flush input field area on complete modification cycle
+                document.getElementById('prompt-input').value = ""; 
                 updateEstimatedCost();
                 document.getElementById('btn-download').disabled = false;
 
             } catch (err) {
                 console.error(err);
-                showToast("Runtime Compilation Failure", err.message || "An exception fault interrupted the script wrapper assembly.", "error");
+                let fallbackErrorMessage = err.message || "An exception fault interrupted the compilation.";
+                if (err.name === 'AbortError') {
+                    fallbackErrorMessage = "The context window took too long to compile on the free queue tier. Please scale down prompt instructions or change Model Tier.";
+                }
+                document.getElementById('code-viewer').value = `/* COMPILATION BREAKDOWN EXCEPTION: \n ${fallbackErrorMessage} \n\n Please try again or toggle a different engine tier model above. */`;
+                showToast("Runtime Compilation Failure", fallbackErrorMessage, "error");
             } finally {
                 setEngineStatus(false);
             }
@@ -564,6 +576,13 @@ DO NOT provide architectural descriptions, text changes notes, or instructions o
             const executedMatchGroup = rawMarkdownText.match(markdownMatchPattern);
             if (executedMatchGroup && executedMatchGroup[1]) return executedMatchGroup[1].trim();
             if (rawMarkdownText.trim().toLowerCase().startsWith("<!doctype html") || rawMarkdownText.trim().toLowerCase().startsWith("<html")) return rawMarkdownText.trim();
+            
+            // Loose index parser recovery routine if markdown tags were skipped by AI tier
+            const firstHtmlOpeningIndex = rawMarkdownText.indexOf("<html");
+            const lastHtmlClosingIndex = rawMarkdownText.lastIndexOf("</html>");
+            if(firstHtmlOpeningIndex !== -1 && lastHtmlClosingIndex !== -1) {
+                return rawMarkdownText.substring(firstHtmlOpeningIndex, lastHtmlClosingIndex + 7);
+            }
             return null;
         }
 
@@ -581,7 +600,6 @@ DO NOT provide architectural descriptions, text changes notes, or instructions o
             }, 50);
         }
 
-        // 5. Code Exporter Utilities
         function downloadGameCode() {
             if (!generatedCodeStore) return;
             const contentBlob = new Blob([generatedCodeStore], { type: 'text/html' });
@@ -595,7 +613,6 @@ DO NOT provide architectural descriptions, text changes notes, or instructions o
             showToast("FileSystem Export", "Source payload written to file: 'index.html'", "success");
         }
 
-        // 6. Presentation Interface Visual States Managers
         function switchTab(activeViewMode) {
             const previewTabButton = document.getElementById('tab-preview');
             const codeTabButton = document.getElementById('tab-code');
