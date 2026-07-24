@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeWiz</title>
+    <title>AI Game Engine - Stable Studio Architecture</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -51,9 +51,9 @@
                     <label class="block text-xs text-slate-400 mb-1">AI Model Tier</label>
                     <select id="model-select" onchange="updateEstimatedCost()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
                         <option value="low">Low Tier (Auto Free Baseline)</option>
-                        <option value="mid">Mid Tier (Gemini 2.5 Pro Exp Free)</option>
-                        <option value="high">High Tier (Laguna XS Coding Free)</option>
-                        <option value="best" selected>Best Tier (Qwen 3 Coder Free)</option>
+                        <option value="mid">Mid Tier (Gemini Flash Free)</option>
+                        <option value="high">High Tier (Llama 3 Free)</option>
+                        <option value="best" selected>Best Tier (Auto-Routing Premium Free)</option>
                     </select>
                 </div>
             </div>
@@ -165,20 +165,23 @@
     </div>
 
     <script>
+        // ==========================================
         // HARDCODED OPENROUTER API KEY VALUE PROPERTY
-        const OPENROUTER_API_KEY = "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";
+        // ==========================================
+        const OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY_HERE";
 
+        // Updated highly available and resilient endpoints to prevent 404 faults
         const MODEL_TIER_ROUTING = {
-             "low": "openrouter/free",
-             "mid": "google/gemini-2.5-flash:free", // Updated to a stable free variant
-             "high": "qwen/qwen-2.5-coder-32b:free", // Updated to a highly available coding model
-             "best": "openrouter/free"              // Fallback baseline wrapper
+            "low": "openrouter/free", 
+            "mid": "google/gemini-flash-1.5:free", 
+            "high": "meta-llama/llama-3-8b-instruct:free", 
+            "best": "openrouter/free" 
         };
 
         const BASE_COSTS = { "low": 0, "mid": 50, "high": 150, "best": 350 };
 
         let currentUser = null;
-        let currentAuthMode = "login"; // Options: 'login' or 'signup'
+        let currentAuthMode = "login"; 
         let generatedCodeStore = "";
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -208,7 +211,6 @@
             const submitBtn = document.getElementById('btn-auth-submit');
             const toggleBtn = document.getElementById('btn-auth-toggle');
 
-            // Reset Input Values
             document.getElementById('auth-username').value = "";
             document.getElementById('auth-password').value = "";
 
@@ -260,14 +262,13 @@
                 }
                 currentUser = parsedProfile;
             } else {
-                // Sign Up Pipeline execution rules
                 if(profileRecord) {
                     showToast("Profile Collides", "Specified username node signature is already occupied.", "warning");
                     return;
                 }
                 currentUser = {
                     username: username,
-                    password: password, // Locally kept secure token validation strings
+                    password: password, 
                     credits: 1000,
                     projects: []
                 };
@@ -357,7 +358,7 @@
             switchTab('preview');
             document.getElementById('btn-download').disabled = false;
             updateEstimatedCost();
-            showToast("Project Initialized", "Loaded project snapshot build configuration code into sandbox workspace.", "success");
+            showToast("Project Initialized", "Loaded project build snapshot into workspace.", "success");
         }
 
         function deleteSavedProjectCode(projectId) {
@@ -365,7 +366,7 @@
             saveProfileStateToStorage(currentUser);
             sessionStorage.setItem('wisp_active_session', JSON.stringify(currentUser));
             renderProjectsSidebarList();
-            showToast("Project Purged", "Workspace asset index snapshot deleted.", "warning");
+            showToast("Project Purged", "Workspace asset snapshot deleted.", "warning");
         }
 
         // 3. Dynamic Cost Tracking Matrices
@@ -389,18 +390,18 @@
         async function generateGame() {
             if (!currentUser) {
                 openAuthModal('login');
-                showToast("Access Restricted", "Initialize active security node profile first.", "warning");
+                showToast("Access Restricted", "Initialize active node profile first.", "warning");
                 return;
             }
 
             if (OPENROUTER_API_KEY === "YOUR_OPENROUTER_API_KEY_HERE" || !OPENROUTER_API_KEY) {
-                showToast("Core Configuration Error", "OpenRouter API integration runtime token missing from application script.", "error");
+                showToast("Configuration Error", "Please place your OpenRouter token string into the code variable area.", "error");
                 return;
             }
 
             const userPrompt = document.getElementById('prompt-input').value.trim();
             if (!userPrompt) {
-                showToast("Validation Error", "Prompt parameters cannot be mapped blank.", "warning");
+                showToast("Validation Error", "Prompt parameter strings cannot be completely empty.", "warning");
                 return;
             }
 
@@ -408,7 +409,7 @@
             const chosenTier = document.getElementById('model-select').value;
 
             if (chosenTier !== "low" && currentUser.credits < transactionCost) {
-                showToast("Compute Refused", `Insufficient credits. Required ${transactionCost} cr. Available ${currentUser.credits} cr.`, "error");
+                showToast("Compute Refused", `Requires ${transactionCost} cr. Your balance: ${currentUser.credits} cr.`, "error");
                 return;
             }
 
@@ -433,21 +434,19 @@
                     })
                 });
 
-                if (!response.ok) throw new Error(`API Connection Exception: ${response.status}`);
+                if (!response.ok) throw new Error(`API Connection Exception Status: ${response.status}`);
 
                 const resultPayload = await response.json();
                 const rawModelOutputText = resultPayload.choices[0]?.message?.content;
-                if (!rawModelOutputText) throw new Error("Empty model response payload stream returned.");
+                if (!rawModelOutputText) throw new Error("Empty payload stream returned from system router.");
 
                 const parsedExecutableCode = extractHTMLContent(rawModelOutputText);
-                if (!parsedExecutableCode) throw new Error("Regex pipeline parsing matching failed to isolate raw markup blocks.");
+                if (!parsedExecutableCode) throw new Error("Regex workflow parsing metrics failed to cleanly extract core markup elements.");
 
-                // Deduct balance arrays
                 if (chosenTier !== "low") {
                     currentUser.credits -= transactionCost;
                 }
 
-                // Cache to memory and add project metadata arrays
                 generatedCodeStore = parsedExecutableCode;
                 document.getElementById('code-viewer').value = generatedCodeStore;
                 
@@ -460,7 +459,7 @@
 
             } catch (err) {
                 console.error(err);
-                showToast("Runtime Compilation Failure", err.message || "An exception fault interrupted the system wrapper.", "error");
+                showToast("Runtime Compilation Failure", err.message || "An exception fault interrupted the script wrapper assembly.", "error");
             } finally {
                 setEngineStatus(false);
             }
