@@ -50,10 +50,8 @@
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">AI Model Intelligence</label>
                     <select id="model-select" onchange="updateEstimatedCost()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
-                        <option value="low" selected>Auto Free Router (Highly Recommended)</option>
-                        <option value="mid">Llama 3 Stable Free</option>
-                        <option value="high">Mistral Free Fallback</option>
-                        <option value="best">Universal Auto-Tier</option>
+                        <option value="low" selected>Llama 3 8B (Direct Free Path)</option>
+                        <option value="mid">Mistral 7B (Direct Free Path)</option>
                     </select>
                 </div>
             </div>
@@ -179,17 +177,15 @@
         // ==========================================
         // HARDCODED OPENROUTER API KEY VALUE PROPERTY
         // ==========================================
-        const OPENROUTER_API_KEY = "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";
+        const OPENROUTER_API_KEY = "Ysk-or-v1-dccb225b54e01678fe18a48a31310a7b748a7201dc36a8d5ba24bf550652d977";
 
-        // Re-routed to the highly redundant universal endpoints to ignore 404 deprecations
+        // Forced direct paths to stable open free endpoints
         const MODEL_TIER_ROUTING = {
-            "low": "openrouter/auto:free", 
-            "mid": "meta-llama/llama-3-8b-instruct:free", 
-            "high": "mistralai/mistral-7b-instruct:free", 
-            "best": "openrouter/auto:free" 
+            "low": "meta-llama/llama-3-8b-instruct:free", 
+            "mid": "mistralai/mistral-7b-instruct:free"
         };
 
-        const BASE_COSTS = { "low": 0, "mid": 0, "high": 0, "best": 0 };
+        const BASE_COSTS = { "low": 0, "mid": 0 };
 
         let currentUser = null;
         let currentAuthMode = "login"; 
@@ -445,7 +441,7 @@
         function calculateCurrentTransactionCost() {
             const selectedTier = document.getElementById('model-select').value;
             const promptLength = document.getElementById('prompt-input').value.length;
-            const baseCost = BASE_COSTS[selectedTier];
+            const baseCost = BASE_COSTS[selectedTier] || 0;
             
             let multiplier = 1;
             if (promptLength >= 100 && promptLength <= 300) multiplier = 2;
@@ -458,7 +454,7 @@
             document.getElementById('estimated-cost').innerText = calculateCurrentTransactionCost();
         }
 
-        // UNIVERSAL RESILIENT CODEWIZ GENERATOR PIPELINE
+        // RESILIENT CODEWIZ COMPILER ENGINE
         async function generateGame() {
             if (!currentUser) {
                 openAuthModal('login');
@@ -477,14 +473,7 @@
                 return;
             }
 
-            const transactionCost = calculateCurrentTransactionCost();
             const chosenTier = document.getElementById('model-select').value;
-
-            if (chosenTier !== "low" && currentUser.credits < transactionCost) {
-                showToast("Compute Refused", `Requires ${transactionCost} cr. Your balance: ${currentUser.credits} cr.`, "error");
-                return;
-            }
-
             setEngineStatus(true, activeProjectId ? "Integrating Modifications..." : "Compiling Engine Logic...");
             switchTab('code');
             document.getElementById('code-viewer').value = "Connecting CodeWiz compiler pipeline nodes...\n";
@@ -549,10 +538,6 @@ Output the complete updated file.`;
 
                 const parsedExecutableCode = extractHTMLContent(rawModelOutputText);
                 if (!parsedExecutableCode) throw new Error("Markup parsing block extraction missed matching tags. Try compiling again.");
-
-                if (chosenTier !== "low") {
-                    currentUser.credits -= transactionCost;
-                }
 
                 generatedCodeStore = parsedExecutableCode;
                 document.getElementById('code-viewer').value = generatedCodeStore;
