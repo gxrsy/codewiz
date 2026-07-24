@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Game Engine - CodeWisp Inspired</title>
+    <title>AI Game Engine - Persistent Architecture</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Custom scrollbar styling */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
@@ -23,7 +22,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">WispEngine</h1>
-                <p class="text-xs text-slate-400">AI-Powered Game Generation</p>
+                <p class="text-xs text-slate-400">Persistent Studio Environment</p>
             </div>
         </div>
 
@@ -37,7 +36,7 @@
                 <span class="text-sm text-slate-300" id="username-display">Developer</span>
                 <button onclick="logout()" class="text-xs text-rose-400 hover:text-rose-300 underline">Sign Out</button>
             </div>
-            <button id="btn-trigger-login" onclick="openLoginModal()" class="bg-indigo-600 hover:bg-indigo-500 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            <button id="btn-trigger-login" onclick="openAuthModal('login')" class="bg-indigo-600 hover:bg-indigo-500 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                 Sign In
             </button>
         </div>
@@ -47,18 +46,7 @@
         
         <aside class="w-80 bg-slate-900 border-r border-slate-800 p-4 flex flex-col space-y-6 overflow-y-auto">
             <div class="space-y-3">
-                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">API Configuration</h3>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">OpenRouter API Key</label>
-                    <div class="relative">
-                        <input type="password" id="api-key-input" placeholder="sk-or-..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors">
-                        <button onclick="toggleApiKeyVisibility()" class="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300">
-                            <i id="eye-icon" class="fa-solid fa-eye text-xs"></i>
-                        </button>
-                    </div>
-                    <p class="text-[10px] text-slate-500 mt-1">Keys are stored locally in your browser.</p>
-                </div>
-
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Engine Pipeline</h3>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">AI Model Tier</label>
                     <select id="model-select" onchange="updateEstimatedCost()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
@@ -70,22 +58,14 @@
                 </div>
             </div>
 
-            <hr class="border-slate-800">
-
-            <div class="space-y-3">
-                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cost Matrix Reference</h3>
-                <div class="bg-slate-950 rounded-lg p-3 text-xs space-y-2 border border-slate-800">
-                    <div class="flex justify-between"><span class="text-slate-500">Low Tier Base:</span> <span class="text-emerald-400 font-mono">0 cr</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500">Mid Tier Base:</span> <span class="text-slate-300 font-mono">50 cr</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500">High Tier Base:</span> <span class="text-slate-300 font-mono">150 cr</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500">Best Tier Base:</span> <span class="text-slate-300 font-mono">350 cr</span></div>
-                    <div class="pt-2 border-t border-slate-900 text-[11px]">
-                        <span class="text-indigo-400 font-semibold">Multipliers:</span> Length &lt;100ch (<span class="font-mono">1x</span>) | 100-300ch (<span class="font-mono">2x</span>) | &gt;300ch (<span class="font-mono">3x</span>)
-                    </div>
+            <div class="flex-1 flex flex-col min-h-[200px]">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Your Saved Projects</h3>
+                <div id="project-list" class="flex-1 bg-slate-950 rounded-lg p-2 border border-slate-800 space-y-1 overflow-y-auto max-h-[250px] text-xs text-slate-500 italic flex flex-col justify-start">
+                    <span class="p-2 text-center block w-full">Sign in to sync your local cloud save states.</span>
                 </div>
             </div>
 
-            <div class="mt-auto pt-4 space-y-2">
+            <div class="pt-4 space-y-2">
                 <button id="btn-download" disabled onclick="downloadGameCode()" class="w-full bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-800 text-slate-200 text-sm font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-download"></i>
                     <span>Download Game File</span>
@@ -94,7 +74,6 @@
         </aside>
 
         <main class="flex-1 flex flex-col bg-slate-950 overflow-hidden">
-            
             <div class="bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between h-12 flex-shrink-0">
                 <div class="flex space-x-2">
                     <button id="tab-preview" onclick="switchTab('preview')" class="text-sm font-medium px-4 py-3 border-b-2 border-indigo-500 text-indigo-400 transition-all">
@@ -119,7 +98,7 @@
                                 <i class="fa-solid fa-gamepad text-5xl"></i>
                             </div>
                             <h3 class="text-base font-semibold text-slate-400">Sandbox Ready for Input</h3>
-                            <p class="text-xs text-slate-500 max-w-sm mt-1">Configure your API Key, write a descriptive prompt below, and unleash the AI engine.</p>
+                            <p class="text-xs text-slate-500 max-w-sm mt-1">Write a descriptive prompt below and unleash the AI engine workspace.</p>
                         </div>
                     </div>
                 </div>
@@ -132,7 +111,7 @@
             <div class="p-4 bg-slate-900 border-t border-slate-800 space-y-2 flex-shrink-0">
                 <div class="flex space-x-3 items-end">
                     <div class="flex-1 relative">
-                        <textarea id="prompt-input" rows="2" oninput="updateEstimatedCost()" placeholder="Describe your web game concept in detail (e.g., 'A neon synthwave retro style infinite cycle flappy-bird clone with a dynamic canvas score tracker...')" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-24 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors resize-none"></textarea>
+                        <textarea id="prompt-input" rows="2" oninput="updateEstimatedCost()" placeholder="Describe your web game concept in detail..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-24 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors resize-none"></textarea>
                         <div class="absolute right-3 bottom-3 text-[11px] text-slate-500 pointer-events-none select-none">
                             Est. Cost: <span id="estimated-cost" class="font-mono text-amber-400">0</span> cr
                         </div>
@@ -148,36 +127,47 @@
 
     <div id="toast-container" class="fixed bottom-20 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
-    <div id="login-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl transform scale-95 transition-all">
             <div class="flex items-center space-x-3 mb-4">
                 <div class="bg-indigo-600/20 text-indigo-400 p-2 rounded-lg">
-                    <i class="fa-solid fa-user-astronaut text-xl"></i>
+                    <i id="auth-modal-icon" class="fa-solid fa-lock text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-slate-100">Establish Developer Session</h3>
-                    <p class="text-xs text-slate-500">Access local project compilers</p>
+                    <h3 id="auth-modal-title" class="text-base font-bold text-slate-100">Sign In to Dashboard</h3>
+                    <p id="auth-modal-subtitle" class="text-xs text-slate-500">Access local account profiles</p>
                 </div>
             </div>
+            
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Developer Alias</label>
-                    <input type="text" id="modal-username" placeholder="e.g., AdaLovelace" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
+                    <label class="block text-xs text-slate-400 mb-1">Developer Username</label>
+                    <input type="text" id="auth-username" placeholder="e.g., DevWisp" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
                 </div>
-                <div class="bg-indigo-950/40 border border-indigo-900/50 rounded-lg p-3 text-xs text-indigo-300 flex items-start space-x-2">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Secure Password</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+
+                <div id="auth-onboarding-alert" class="bg-indigo-950/40 border border-indigo-900/50 rounded-lg p-3 text-xs text-indigo-300 hidden items-start space-x-2">
                     <i class="fa-solid fa-gift mt-0.5 text-amber-400"></i>
-                    <span>First-time registrations automatically receive a deployment grant of <strong>1,000 complimentary operational platform credits</strong>.</span>
+                    <span>New nodes automatically receive an allocation grant of <strong>1,000 engine computation credits</strong>.</span>
                 </div>
-                <div class="flex space-x-2 pt-2">
-                    <button onclick="closeLoginModal()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium py-2 rounded-lg transition-colors">Cancel</button>
-                    <button onclick="submitLogin()" class="w-1/2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium py-2 rounded-lg transition-colors shadow-lg shadow-indigo-600/10">Initialize</button>
+
+                <div class="flex flex-col space-y-2 pt-2">
+                    <button onclick="submitAuthAction()" id="btn-auth-submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium py-2 rounded-lg transition-colors shadow-lg shadow-indigo-600/10">Authenticate</button>
+                    <div class="text-center">
+                        <button id="btn-auth-toggle" onclick="toggleAuthMode()" class="text-xs text-slate-400 hover:text-slate-300 underline">Don't have an account? Sign Up</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // OpenRouter Tier Mappings
+        // HARDCODED OPENROUTER API KEY VALUE PROPERTY
+        const OPENROUTER_API_KEY = "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";
+
         const MODEL_TIER_ROUTING = {
             "low": "openrouter/free",
             "mid": "google/gemini-2.5-pro-exp-03-25:free",
@@ -185,82 +175,124 @@
             "best": "qwen/qwen3-coder:free"
         };
 
-        const BASE_COSTS = {
-            "low": 0,
-            "mid": 50,
-            "high": 150,
-            "best": 350
-        };
+        const BASE_COSTS = { "low": 0, "mid": 50, "high": 150, "best": 350 };
 
-        // Application State Management
         let currentUser = null;
+        let currentAuthMode = "login"; // Options: 'login' or 'signup'
         let generatedCodeStore = "";
 
-        // Lifecycle Hooks On App Load
         window.addEventListener('DOMContentLoaded', () => {
             initializeSessionState();
-            loadCachedApiKey();
             updateEstimatedCost();
         });
 
-        // 1. Authentication Engine
+        // 1. Authentication & Security Routine Modals
         function initializeSessionState() {
-            const cachedUser = localStorage.getItem('wisp_user');
+            const cachedUser = sessionStorage.getItem('wisp_active_session');
             if (cachedUser) {
                 currentUser = JSON.parse(cachedUser);
                 syncUserInterface();
             } else {
-                openLoginModal();
+                openAuthModal('login');
             }
         }
 
-        function openLoginModal() {
-            document.getElementById('login-modal').classList.remove('hidden');
-            document.getElementById('login-modal').classList.add('flex');
+        function openAuthModal(mode) {
+            currentAuthMode = mode;
+            document.getElementById('auth-modal').classList.replace('hidden', 'flex');
+            
+            const title = document.getElementById('auth-modal-title');
+            const subtitle = document.getElementById('auth-modal-subtitle');
+            const icon = document.getElementById('auth-modal-icon');
+            const alertBox = document.getElementById('auth-onboarding-alert');
+            const submitBtn = document.getElementById('btn-auth-submit');
+            const toggleBtn = document.getElementById('btn-auth-toggle');
+
+            // Reset Input Values
+            document.getElementById('auth-username').value = "";
+            document.getElementById('auth-password').value = "";
+
+            if(mode === 'login') {
+                title.innerText = "Sign In to Dashboard";
+                subtitle.innerText = "Access local account profiles";
+                icon.className = "fa-solid fa-lock text-xl";
+                alertBox.classList.replace('flex', 'hidden');
+                submitBtn.innerText = "Initialize Session";
+                toggleBtn.innerText = "Don't have an account? Sign Up";
+            } else {
+                title.innerText = "Register Cloud Profile";
+                subtitle.innerText = "Create local encryption profile credentials";
+                icon.className = "fa-solid fa-user-plus text-xl";
+                alertBox.classList.replace('hidden', 'flex');
+                submitBtn.innerText = "Provision Node";
+                toggleBtn.innerText = "Already registered? Log In";
+            }
         }
 
-        function closeLoginModal() {
-            document.getElementById('login-modal').classList.remove('flex');
-            document.getElementById('login-modal').classList.add('hidden');
+        function toggleAuthMode() {
+            if(currentAuthMode === 'login') {
+                openAuthModal('signup');
+            } else {
+                openAuthModal('login');
+            }
         }
 
-        function submitLogin() {
-            const usernameInput = document.getElementById('modal-username').value.trim();
-            if (!usernameInput) {
-                showToast("Invalid Configuration", "An operational handle is required.", "error");
+        function submitAuthAction() {
+            const username = document.getElementById('auth-username').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+
+            if (!username || !password) {
+                showToast("Credentials Unmet", "All credential validation blocks are required.", "error");
                 return;
             }
 
-            // Mock Data Query or Storage Setup
-            let userData = localStorage.getItem(`wisp_profile_${usernameInput}`);
-            if (userData) {
-                currentUser = JSON.parse(userData);
+            let profileRecord = localStorage.getItem(`wisp_secure_profile_${username}`);
+
+            if (currentAuthMode === 'login') {
+                if(!profileRecord) {
+                    showToast("Access Refused", "Specified node identity profile does not exist.", "error");
+                    return;
+                }
+                const parsedProfile = JSON.parse(profileRecord);
+                if(parsedProfile.password !== password) {
+                    showToast("Authentication Fail", "Password verification mismatch.", "error");
+                    return;
+                }
+                currentUser = parsedProfile;
             } else {
-                // Initialize default metrics for first-time profile setups
+                // Sign Up Pipeline execution rules
+                if(profileRecord) {
+                    showToast("Profile Collides", "Specified username node signature is already occupied.", "warning");
+                    return;
+                }
                 currentUser = {
-                    username: usernameInput,
-                    credits: 1000
+                    username: username,
+                    password: password, // Locally kept secure token validation strings
+                    credits: 1000,
+                    projects: []
                 };
-                localStorage.setItem(`wisp_profile_${usernameInput}`, JSON.stringify(currentUser));
+                saveProfileStateToStorage(currentUser);
             }
 
-            localStorage.setItem('wisp_user', JSON.stringify(currentUser));
+            sessionStorage.setItem('wisp_active_session', JSON.stringify(currentUser));
             syncUserInterface();
-            closeLoginModal();
-            showToast("Session Online", `Authenticated as pipeline node: ${currentUser.username}`, "success");
+            document.getElementById('auth-modal').classList.replace('flex', 'hidden');
+            showToast("Session Online", `Authenticated safely as pipeline identity node: ${currentUser.username}`, "success");
         }
 
         function logout() {
-            if(currentUser) {
-                // Save current profile buffer state out before clearing active active state pointers
-                localStorage.setItem(`wisp_profile_${currentUser.username}`, JSON.stringify(currentUser));
-            }
-            localStorage.removeItem('wisp_user');
+            if(currentUser) saveProfileStateToStorage(currentUser);
+            sessionStorage.removeItem('wisp_active_session');
             currentUser = null;
             document.getElementById('credit-display').classList.replace('flex', 'hidden');
             document.getElementById('user-profile').classList.replace('flex', 'hidden');
             document.getElementById('btn-trigger-login').classList.remove('hidden');
-            openLoginModal();
+            openAuthModal('login');
+        }
+
+        function saveProfileStateToStorage(profileObject) {
+            if(!profileObject) return;
+            localStorage.setItem(`wisp_secure_profile_${profileObject.username}`, JSON.stringify(profileObject));
         }
 
         function syncUserInterface() {
@@ -271,106 +303,126 @@
             document.getElementById('credit-display').classList.replace('hidden', 'flex');
             document.getElementById('user-profile').classList.replace('hidden', 'flex');
             document.getElementById('btn-trigger-login').classList.add('hidden');
+
+            renderProjectsSidebarList();
         }
 
-        // 2. Cost Compiling Systems Logic
+        // 2. Persistent Storage Projects Manager Architecture
+        function saveGeneratedGameToCloudProfile(promptText, completeSourceCode) {
+            if(!currentUser) return;
+
+            const structuredProjectItem = {
+                id: "proj_" + Date.now(),
+                timestamp: new Date().toLocaleDateString(),
+                title: promptText.substring(0, 25) + (promptText.length > 25 ? "..." : ""),
+                code: completeSourceCode,
+                prompt: promptText
+            };
+
+            currentUser.projects.unshift(structuredProjectItem);
+            saveProfileStateToStorage(currentUser);
+            sessionStorage.setItem('wisp_active_session', JSON.stringify(currentUser));
+            renderProjectsSidebarList();
+        }
+
+        function renderProjectsSidebarList() {
+            const targetContainer = document.getElementById('project-list');
+            if(!currentUser || currentUser.projects.length === 0) {
+                targetContainer.innerHTML = `<span class="p-2 text-center block w-full text-slate-600">No projects compiled yet.</span>`;
+                return;
+            }
+
+            targetContainer.innerHTML = currentUser.projects.map(proj => `
+                <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-2 rounded hover:border-indigo-500/50 transition-colors group">
+                    <button onclick="loadSavedProjectCode('${proj.id}')" class="flex-1 text-left truncate font-medium text-slate-300 hover:text-indigo-400 pr-2">
+                        <i class="fa-solid fa-cube text-[10px] text-indigo-500 mr-1"></i>${proj.title}
+                        <span class="block text-[9px] text-slate-500 font-mono">${proj.timestamp}</span>
+                    </button>
+                    <button onclick="deleteSavedProjectCode('${proj.id}')" class="text-slate-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function loadSavedProjectCode(projectId) {
+            const project = currentUser.projects.find(p => p.id === projectId);
+            if(!project) return;
+
+            generatedCodeStore = project.code;
+            document.getElementById('code-viewer').value = generatedCodeStore;
+            document.getElementById('prompt-input').value = project.prompt;
+            
+            injectCodeToSandboxPreview(generatedCodeStore);
+            switchTab('preview');
+            document.getElementById('btn-download').disabled = false;
+            updateEstimatedCost();
+            showToast("Project Initialized", "Loaded project snapshot build configuration code into sandbox workspace.", "success");
+        }
+
+        function deleteSavedProjectCode(projectId) {
+            currentUser.projects = currentUser.projects.filter(p => p.id !== projectId);
+            saveProfileStateToStorage(currentUser);
+            sessionStorage.setItem('wisp_active_session', JSON.stringify(currentUser));
+            renderProjectsSidebarList();
+            showToast("Project Purged", "Workspace asset index snapshot deleted.", "warning");
+        }
+
+        // 3. Dynamic Cost Tracking Matrices
         function calculateCurrentTransactionCost() {
             const selectedTier = document.getElementById('model-select').value;
-            const promptValue = document.getElementById('prompt-input').value;
-            const promptLength = promptValue.length;
-
+            const promptLength = document.getElementById('prompt-input').value.length;
             const baseCost = BASE_COSTS[selectedTier];
+            
             let multiplier = 1;
-
-            if (promptLength >= 100 && promptLength <= 300) {
-                multiplier = 2;
-            } else if (promptLength > 300) {
-                multiplier = 3;
-            }
+            if (promptLength >= 100 && promptLength <= 300) multiplier = 2;
+            else if (promptLength > 300) multiplier = 3;
 
             return baseCost * multiplier;
         }
 
         function updateEstimatedCost() {
-            const cost = calculateCurrentTransactionCost();
-            document.getElementById('estimated-cost').innerText = cost;
+            document.getElementById('estimated-cost').innerText = calculateCurrentTransactionCost();
         }
 
-        // 3. API Storage Cache Sync
-        function loadCachedApiKey() {
-            const savedKey = localStorage.getItem('wisp_or_key');
-            if (savedKey) {
-                document.getElementById('api-key-input').value = savedKey;
-            }
-        }
-
-        function toggleApiKeyVisibility() {
-            const target = document.getElementById('api-key-input');
-            const icon = document.getElementById('eye-icon');
-            if (target.type === "password") {
-                target.type = "text";
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                target.type = "password";
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
-        }
-
-        // 4. Engine Generator Orchestrator
+        // 4. API Orchestrator Logic
         async function generateGame() {
-            // Guard conditions
             if (!currentUser) {
-                openLoginModal();
-                showToast("Access Restricted", "Initialize identity node first.", "warning");
+                openAuthModal('login');
+                showToast("Access Restricted", "Initialize active security node profile first.", "warning");
                 return;
             }
 
-            const apiKey = document.getElementById('api-key-input').value.trim();
-            if (!apiKey) {
-                showToast("API Authentication Error", "An OpenRouter API key is required to build code via LLM routers.", "error");
+            if (OPENROUTER_API_KEY === "YOUR_OPENROUTER_API_KEY_HERE" || !OPENROUTER_API_KEY) {
+                showToast("Core Configuration Error", "OpenRouter API integration runtime token missing from application script.", "error");
                 return;
             }
-            // Save the valid structure
-            localStorage.setItem('wisp_or_key', apiKey);
 
             const userPrompt = document.getElementById('prompt-input').value.trim();
             if (!userPrompt) {
-                showToast("Syntax Validation Error", "Prompt parameter mapping block is completely blank.", "warning");
+                showToast("Validation Error", "Prompt parameters cannot be mapped blank.", "warning");
                 return;
             }
 
             const transactionCost = calculateCurrentTransactionCost();
             const chosenTier = document.getElementById('model-select').value;
 
-            // Enforce Balance Constraints unless bypassed by Always-Free Baseline
             if (chosenTier !== "low" && currentUser.credits < transactionCost) {
-                showToast("Compute Refused", `Insufficient credit depth. Core requires ${transactionCost} cr but balance holds ${currentUser.credits} cr.`, "error");
+                showToast("Compute Refused", `Insufficient credits. Required ${transactionCost} cr. Available ${currentUser.credits} cr.`, "error");
                 return;
             }
 
-            // Lock UI and advance pipeline state
             setEngineStatus(true, "Compiling Engine Logic...");
-
             const targetModelIdentifier = MODEL_TIER_ROUTING[chosenTier];
             
-            // Structural System Blueprint directives
-            const systemicBlueprintPrompt = `You are an expert full-stack developer and professional game engineer. 
-Your objective is to generate entirely functional, complete, single-file browser application web games written from scratch according to the customer prompt request parameters.
-
-CRITICAL ARCHITECTURE INSTRUCTIONS:
-1. Return exclusively high-quality, fully production-ready code blocks inside a clean single \`html\` format wrapper markdown container.
-2. Incorporate CSS (Tailwind or embedded style components blocks) and all necessary modern standard ECMAScript modules code functionality sequentially inside the single asset payload.
-3. Include clear game loops, asset rendering mock layers using dynamic UI layouts or raw HTML5 canvases, complete mechanics engines, clear score loops, restart workflows, and smooth controls responsive to keyboard inputs or mouse/touch arrays.
-4. DO NOT provide markdown architectural explanations, external repository references, notes, preamble text strings, or trailing annotations outside of the direct code scope blocks. Output standard syntax structures.`;
+            const systemicBlueprintPrompt = `You are an expert full-stack developer and professional game engineer. Return exclusively functional, modern web game components inside a clean single \`html\` markup wrapper markdown block containing inline Tailwind CSS style matrices and ES Modules Javascript logic loops. DO NOT provide annotations or explanations.`;
 
             try {
                 const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
-                        "Authorization": `Bearer ${apiKey}`,
-                        "Content-Type": "application/json",
-                        "HTTP-Referer": window.location.href,
-                        "X-Title": "WispEngine Workbench"
+                        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
                         model: targetModelIdentifier,
@@ -381,79 +433,51 @@ CRITICAL ARCHITECTURE INSTRUCTIONS:
                     })
                 });
 
-                if (!response.ok) {
-                    const errorDetail = await response.text();
-                    throw new Error(`API Transaction Response Code Error: ${response.status} - ${errorDetail}`);
-                }
+                if (!response.ok) throw new Error(`API Connection Exception: ${response.status}`);
 
                 const resultPayload = await response.json();
                 const rawModelOutputText = resultPayload.choices[0]?.message?.content;
+                if (!rawModelOutputText) throw new Error("Empty model response payload stream returned.");
 
-                if (!rawModelOutputText) {
-                    throw new Error("Pipeline returned an empty completion bundle token array stream.");
-                }
-
-                // Process Payload Output Extract
                 const parsedExecutableCode = extractHTMLContent(rawModelOutputText);
-                
-                if (!parsedExecutableCode) {
-                    throw new Error("Malformed processing structure: Regex parsing filters failed to isolate clean code blocks.");
-                }
+                if (!parsedExecutableCode) throw new Error("Regex pipeline parsing matching failed to isolate raw markup blocks.");
 
-                // Complete transactional credit billing deduction logic routines
+                // Deduct balance arrays
                 if (chosenTier !== "low") {
                     currentUser.credits -= transactionCost;
-                    localStorage.setItem(`wisp_profile_${currentUser.username}`, JSON.stringify(currentUser));
-                    localStorage.setItem('wisp_user', JSON.stringify(currentUser));
-                    syncUserInterface();
                 }
 
-                // Save to local cache state stores
+                // Cache to memory and add project metadata arrays
                 generatedCodeStore = parsedExecutableCode;
                 document.getElementById('code-viewer').value = generatedCodeStore;
-
-                // Load payload executions inside sandbox containers
+                
+                saveGeneratedGameToCloudProfile(userPrompt, generatedCodeStore);
                 injectCodeToSandboxPreview(generatedCodeStore);
                 switchTab('preview');
                 
-                // Toggle asset interaction button states enabled
                 document.getElementById('btn-download').disabled = false;
-                showToast("Compilation Success", `Asset synthesized successfully. Deducted ${transactionCost} cr.`, "success");
+                showToast("Compilation Success", `Asset written safely. Deducted ${transactionCost} cr.`, "success");
 
             } catch (err) {
                 console.error(err);
-                showToast("Engine Fail State Exception", err.message || "An error occurred during compilation.", "error");
+                showToast("Runtime Compilation Failure", err.message || "An exception fault interrupted the system wrapper.", "error");
             } finally {
                 setEngineStatus(false);
             }
         }
 
-        // Helper Strategy regex parser utilities targeting code isolation filters
         function extractHTMLContent(rawMarkdownText) {
-            // Filter target structural formatting constructs
             const markdownMatchPattern = /```html([\s\S]*?)```/i;
             const executedMatchGroup = rawMarkdownText.match(markdownMatchPattern);
-            
-            if (executedMatchGroup && executedMatchGroup[1]) {
-                return executedMatchGroup[1].trim();
-            }
-
-            // Fallback strategy pattern checking for direct bare inline raw structures
-            if (rawMarkdownText.trim().toLowerCase().startsWith("<!doctype html") || rawMarkdownText.trim().toLowerCase().startsWith("<html")) {
-                return rawMarkdownText.trim();
-            }
-
+            if (executedMatchGroup && executedMatchGroup[1]) return executedMatchGroup[1].trim();
+            if (rawMarkdownText.trim().toLowerCase().startsWith("<!doctype html") || rawMarkdownText.trim().toLowerCase().startsWith("<html")) return rawMarkdownText.trim();
             return null;
         }
 
         function injectCodeToSandboxPreview(executableMarkupSource) {
             const iframeRef = document.getElementById('game-frame');
-            const placeholderElement = document.getElementById('preview-placeholder');
-
-            placeholderElement.classList.replace('flex', 'hidden');
+            document.getElementById('preview-placeholder').classList.replace('flex', 'hidden');
             iframeRef.classList.remove('hidden');
-
-            // Force instantiation refresh clean reload state to clear lingering animation execution variables 
             iframeRef.src = "about:blank";
             
             setTimeout(() => {
@@ -464,26 +488,21 @@ CRITICAL ARCHITECTURE INSTRUCTIONS:
             }, 50);
         }
 
-        // 5. Code Exporters Architecture
+        // 5. Code Exporter Utilities
         function downloadGameCode() {
             if (!generatedCodeStore) return;
-            
             const contentBlob = new Blob([generatedCodeStore], { type: 'text/html' });
             const deploymentVirtualNodeAnchor = document.createElement('a');
-            
             deploymentVirtualNodeAnchor.href = URL.createObjectURL(contentBlob);
             deploymentVirtualNodeAnchor.download = 'index.html';
-            
             document.body.appendChild(deploymentVirtualNodeAnchor);
             deploymentVirtualNodeAnchor.click();
-            
-            // Garbage collection clean routines
             document.body.removeChild(deploymentVirtualNodeAnchor);
             URL.revokeObjectURL(deploymentVirtualNodeAnchor.href);
-            showToast("FileSystem Export", "Source payload written to disk file: 'index.html'", "success");
+            showToast("FileSystem Export", "Source payload written to file: 'index.html'", "success");
         }
 
-        // 6. Presentation Layer Interface Controllers
+        // 6. Presentation Interface Visual States Managers
         function switchTab(activeViewMode) {
             const previewTabButton = document.getElementById('tab-preview');
             const codeTabButton = document.getElementById('tab-code');
@@ -521,11 +540,9 @@ CRITICAL ARCHITECTURE INSTRUCTIONS:
             }
         }
 
-        // Real-time custom toast Notification systems implementation 
         function showToast(title, body, configurationClassification = "success") {
             const notificationsContainer = document.getElementById('toast-container');
             const uniqueToastNodeId = "toast_" + Date.now();
-
             let designBorderToneClass = "border-indigo-500 bg-slate-900";
             let configurationIconMarkup = `<i class="fa-solid fa-circle-check text-indigo-400 mt-0.5"></i>`;
 
@@ -549,16 +566,11 @@ CRITICAL ARCHITECTURE INSTRUCTIONS:
             `;
 
             notificationsContainer.insertAdjacentHTML('beforeend', markupTemplateBuffer);
-            
-            // Force animation sequence flow pipeline execution triggers
             setTimeout(() => {
                 const targetRef = document.getElementById(uniqueToastNodeId);
-                if(targetRef) {
-                    targetRef.classList.remove('translate-x-12', 'opacity-0');
-                }
+                if(targetRef) targetRef.classList.remove('translate-x-12', 'opacity-0');
             }, 10);
 
-            // Automatic garbage cleanup processing execution queues
             setTimeout(() => {
                 const targetRef = document.getElementById(uniqueToastNodeId);
                 if(targetRef) {
