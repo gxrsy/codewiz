@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GenGame Studio - AI Game Creator</title>
+    <title>GenGame Studio - AI Code Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -15,11 +15,11 @@
     <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('landing')">
             <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">G</div>
-            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">GenGame <span class="text-indigo-400 font-medium">Studio</span></span>
+            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">GenGame <span class="text-indigo-400 font-medium">Sandbox</span></span>
         </div>
         <div class="flex items-center gap-4">
-            <button onclick="switchView('community')" class="text-sm font-medium text-slate-400 hover:text-white transition">Community Hub</button>
-            <button onclick="switchView('creator')" id="nav-create-btn" class="hidden text-sm font-medium text-slate-400 hover:text-white transition">Create Game</button>
+            <button onclick="switchView('community')" class="text-sm font-medium text-slate-400 hover:text-white transition">Ideas Hub</button>
+            <button onclick="switchView('creator')" id="nav-create-btn" class="hidden text-sm font-medium text-slate-400 hover:text-white transition">Workspace</button>
             <div id="api-status" class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700 text-xs text-slate-400">
                 <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse" id="status-dot"></span>
                 <span id="status-text">No API Key</span>
@@ -33,14 +33,14 @@
         <section id="view-landing" class="max-w-xl mx-auto text-center py-12 space-y-8">
             <div class="space-y-4">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                    Powered by OpenRouter Free Models
+                    Generates Instant Client-Side HTML Games
                 </span>
                 <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-                    Create & play AI games <br>
-                    <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">driven entirely by prompts.</span>
+                    Turn your descriptions <br>
+                    <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">into playable code web apps.</span>
                 </h1>
-                <p class="text-slate-400 text-base sm:text-lg max-w-md mx-auto">
-                    Connect your OpenRouter API key to generate text adventures, interactive RPGs, and trivia games instantly at zero cost.
+                <p class="text-slate-400 text-sm sm:text-base max-w-md mx-auto">
+                    Provide an OpenRouter key to instantly synthesize functional HTML, complete styling, and full JS game logic directly in your browser viewport.
                 </p>
             </div>
 
@@ -50,88 +50,73 @@
                     <input type="password" id="api-key-input" placeholder="sk-or-v1-..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition placeholder:text-slate-600">
                 </div>
                 <button onclick="saveAPIKey()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-indigo-600/20 active:scale-[0.98]">
-                    Connect & Start Creating
+                    Launch Coding Engine
                 </button>
                 <p class="text-xs text-slate-500 text-center">
-                    Your key is stored strictly inside your browser's <code class="text-slate-400">localStorage</code>. It is never sent to any external server except OpenRouter.
+                    Your authorization key is stored client-side via browser <code class="text-slate-400">localStorage</code>.
                 </p>
             </div>
         </section>
 
         <section id="view-creator" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-6">
+            <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-6">
                 <div class="space-y-4">
                     <div>
-                        <h2 class="text-xl font-bold text-white">Forge Your Universe</h2>
-                        <p class="text-xs text-slate-400">Define the rules, genre, and engine driving your custom instance.</p>
+                        <h2 class="text-xl font-bold text-white">App Synthesis Panel</h2>
+                        <p class="text-xs text-slate-400">Instruct the LLM developer to build full components.</p>
                     </div>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Game Concept & Prompt</label>
-                            <textarea id="game-prompt" rows="5" placeholder="Example: A text-adventure set in a gritty neon cyberpunk city where every choice alters your cybernetic stability index..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition placeholder:text-slate-600 resize-none"></textarea>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Game Spec Instructions</label>
+                            <textarea id="game-prompt" rows="8" placeholder="Example: A clicker game set in deep space with custom mining equipment upgrades, crystal score metrics, particles when clicking, and a neon cyber aesthetic layout..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition placeholder:text-slate-600 resize-none"></textarea>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Game System</label>
-                                <select id="game-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-indigo-500">
-                                    <option value="Text Adventure">Text Adventure</option>
-                                    <option value="RPG Core Ruleset">Interactive RPG</option>
-                                    <option value="Trivia Arena">Choice-Based Trivia</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">AI Engine (Free)</label>
-                                <select id="game-model" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-indigo-500">
-                                    <option value="google/gemini-2.5-flash:free">Gemini 2.5 Flash (Free)</option>
-                                    <option value="meta-llama/llama-3-8b-instruct:free">Llama 3 8B (Free)</option>
-                                    <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (Free)</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Active Free Engine</label>
+                            <select id="game-model" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-indigo-500">
+                                <option value="openrouter/free">Auto Free Router (openrouter/free)</option>
+                                <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Free)</option>
+                                <option value="qwen/qwen3-coder:free">Qwen 3 Coder (Free)</option>
+                            </select>
                         </div>
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-800 flex gap-3">
-                    <button onclick="shareGame()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-3 rounded-xl transition text-sm">
-                        Share to Hub
-                    </button>
-                    <button onclick="initializeGame()" class="flex-[2] bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition text-sm shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2">
-                        <span>Initialize Engine</span>
+                <div class="pt-4 border-t border-slate-800">
+                    <button id="compile-btn" onclick="generateGameCode()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition text-sm shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2">
+                        <span>Compile & Run Game</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </button>
                 </div>
             </div>
 
-            <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col h-[600px] overflow-hidden">
+            <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col h-[650px] overflow-hidden">
                 <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
-                        <span class="text-xs font-mono text-emerald-400 uppercase tracking-widest" id="console-status">System Standby</span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700 shadow-[0_0_8px_rgba(255,255,255,0.1)]" id="status-light"></span>
+                        <span class="text-xs font-mono text-slate-400 uppercase tracking-widest" id="console-status">Workspace Ready</span>
                     </div>
-                    <span class="text-[10px] font-mono text-slate-500 uppercase" id="active-model-tag">No Active Model</span>
+                    <div class="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800">
+                        <button onclick="switchTab('preview')" id="tab-preview-btn" class="text-xs px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition">Live Viewport</button>
+                        <button onclick="switchTab('code')" id="tab-code-btn" class="text-xs px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition">Source Code</button>
+                    </div>
                 </div>
 
-                <div id="game-output" class="flex-1 p-6 overflow-y-auto font-mono text-sm space-y-4 text-slate-300 leading-relaxed scrollbar-thin scrollbar-thumb-slate-800">
-                    <div class="text-slate-500 italic">Configure your parameters on the left and initialize the system to boot up the runtime engine...</div>
-                </div>
-
-                <div class="p-4 bg-slate-950/50 border-t border-slate-800">
-                    <form id="action-form" onsubmit="submitPlayerAction(event)" class="flex gap-2">
-                        <input type="text" id="player-input" disabled placeholder="System offline. Run engine initialization first..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-slate-600">
-                        <button type="submit" id="submit-action-btn" disabled class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-medium px-5 rounded-xl transition text-sm">
-                            Execute
-                        </button>
-                    </form>
+                <div class="flex-1 bg-slate-950 relative h-full w-full">
+                    <iframe id="game-preview" class="w-full h-full border-none bg-slate-950" srcdoc="<body style='background:#020617;color:#64748b;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-size:14px;'><div>Configure your app prompt parameters and fire up initialization.</div></body>"></iframe>
+                    
+                    <div id="code-container" class="hidden w-full h-full bg-slate-950 p-6 overflow-auto font-mono text-xs text-emerald-400 select-all whitespace-pre-wrap">
+                        <pre><code id="code-output">Your structural application script framework displays here after code gen loops execute.</code></pre>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section id="view-community" class="hidden space-y-6 py-4">
             <div>
-                <h2 class="text-2xl font-bold text-white">Community Shared Seeds</h2>
-                <p class="text-sm text-slate-400">Load prompt templates instantly into your active workspace panel.</p>
+                <h2 class="text-2xl font-bold text-white">App Blueprint Blueprints</h2>
+                <p class="text-sm text-slate-400">Select pre-built engineering layout logic inputs directly into workspace environments.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="community-grid">
                 </div>
@@ -140,33 +125,27 @@
     </main>
 
     <footer class="border-t border-slate-900 bg-slate-950 px-6 py-4 text-center text-xs text-slate-600">
-        GenGame Studio • Client-side operations only.
+        GenGame Studio Code Generator Sandbox. Powered by openrouter/free execution paths.
     </footer>
 
     <script>
         let userApiKey = '';
-        let currentGameState = [];
-        let systemRulePrompt = '';
 
-        // Mock Seed Database
-        const mockCommunityGames = [
+        const mockPresets = [
             {
-                title: "Neon Horizon: 2099",
-                type: "Text Adventure",
-                model: "google/gemini-2.5-flash:free",
-                prompt: "A text adventure game set inside a sprawling neon cyberpunk dystopia. The player is a freelance netrunner who has just stolen an encrypted chip containing corporate memories. Track health, cybernetic overload levels, and credits."
+                title: "Nebula Core Clicker",
+                description: "An operational increment clicker game tracking score systems, auto-upgrades, floating indicators, and sleek cosmic styled components.",
+                prompt: "Create an addictive sci-fi space idle clicker game. Include a big glowy button to mine cosmic minerals. Implement dynamic upgrades like 'Automated Drones' and 'Quantum Drills' that purchase with minerals and increase minerals-per-second. Render floating points animations whenever the button is clicked. Style beautifully using Tailwind CSS with deep purples and neon cyan colors."
             },
             {
-                title: "Eldoria: The Lost Relic",
-                type: "RPG Core Ruleset",
-                model: "meta-llama/llama-3-8b-instruct:free",
-                prompt: "A dark fantasy tabletop sandbox RPG simulation. Act as the Game Master. The player starts inside a tavern with a strange mechanical map given by a dying rogue. Provide options numbered 1 to 4 for choices but accept custom syntax inputs."
+                title: "Meteor Crash Avoidance 2D",
+                description: "A canvas loop simulation game requiring reflex keyboard actions and state management rules.",
+                prompt: "Build an interactive 2D arcade evasion game rendered directly inside an HTML5 <canvas> element. The player controls a green ship block using mouse movement or arrow keys, dodging falling red blocks. Implement a running timer score metric system, life points, and escalating speed variables over elapsed time limits. Provide game over screens with immediate reboot buttons."
             },
             {
-                title: "Quantum Paradox Arena",
-                type: "Trivia Arena",
-                model: "mistralai/mistral-7b-instruct:free",
-                prompt: "A strict multiple-choice trivia framework focusing on theoretical quantum mechanics and astrophysics. Score the player immediately on answers. Explain the physics principle shortly after incorrect selections."
+                title: "Cyberpunk Terminal Quest",
+                description: "An advanced responsive branching pathway text-scenario system with data storage logs.",
+                prompt: "Design a terminal choice-driven interactive adventure framework. The UI must simulate an green monochrome CRT command line with animated scanning text lines. The player accesses data gigs, handles credit scores, and hacks system firewalls by selecting functional interactive options. Make sure options update variable displays globally dynamically."
             }
         ];
 
@@ -179,15 +158,33 @@
             } else {
                 switchView('landing');
             }
-            renderCommunityHub();
+            renderPresets();
         });
 
         function switchView(viewName) {
             document.getElementById('view-landing').classList.add('hidden');
             document.getElementById('view-creator').classList.add('hidden');
             document.getElementById('view-community').classList.add('hidden');
-
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
+        }
+
+        function switchTab(tab) {
+            const preview = document.getElementById('game-preview');
+            const codeContainer = document.getElementById('code-container');
+            const previewBtn = document.getElementById('tab-preview-btn');
+            const codeBtn = document.getElementById('tab-code-btn');
+
+            if (tab === 'preview') {
+                preview.classList.remove('hidden');
+                codeContainer.classList.add('hidden');
+                previewBtn.className = "text-xs px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition";
+                codeBtn.className = "text-xs px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition";
+            } else {
+                preview.classList.add('hidden');
+                codeContainer.classList.remove('hidden');
+                previewBtn.className = "text-xs px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition";
+                codeBtn.className = "text-xs px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition";
+            }
         }
 
         function updateAuthStatus(isConnected) {
@@ -212,7 +209,7 @@
         function saveAPIKey() {
             const val = document.getElementById('api-key-input').value.trim();
             if(!val.startsWith('sk-or-')) {
-                alert('Please enter a valid OpenRouter API Key configuration.');
+                alert('Provide standard validation formatted token codes.');
                 return;
             }
             userApiKey = val;
@@ -228,110 +225,63 @@
             switchView('landing');
         }
 
-        function loadPresetGame(index) {
-            const target = mockCommunityGames[index];
-            document.getElementById('game-prompt').value = target.prompt;
-            document.getElementById('game-type').value = target.type;
-            document.getElementById('game-model').value = target.model;
+        function loadPreset(idx) {
+            const choice = mockPresets[idx];
+            document.getElementById('game-prompt').value = choice.prompt;
             switchView('creator');
         }
 
-        function renderCommunityHub() {
+        function renderPresets() {
             const grid = document.getElementById('community-grid');
-            grid.innerHTML = mockCommunityGames.map((game, idx) => `
+            grid.innerHTML = mockPresets.map((p, idx) => `
                 <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex flex-col justify-between space-y-4">
                     <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${game.type}</span>
-                            <span class="text-[9px] font-mono text-slate-500 truncate max-w-[120px]">${game.model.split('/')[1]}</span>
-                        </div>
-                        <h3 class="text-base font-bold text-slate-100">${game.title}</h3>
-                        <p class="text-xs text-slate-400 line-clamp-3">${game.prompt}</p>
+                        <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Application Template</span>
+                        <h3 class="text-base font-bold text-slate-100">${p.title}</h3>
+                        <p class="text-xs text-slate-400">${p.description}</p>
                     </div>
-                    <button onclick="loadPresetGame(${idx})" class="w-full bg-slate-950 hover:bg-indigo-600 text-slate-300 hover:text-white border border-slate-800 hover:border-indigo-500 transition font-medium py-2 rounded-lg text-xs">
-                        Load Seed Workspace
+                    <button onclick="loadPreset(${idx})" class="w-full bg-slate-950 hover:bg-indigo-600 text-slate-300 hover:text-white border border-slate-800 hover:border-indigo-500 transition font-medium py-2 rounded-lg text-xs">
+                        Inject Settings Prompt
                     </button>
                 </div>
             `).join('');
         }
 
-        function shareGame() {
-            const prompt = document.getElementById('game-prompt').value.trim();
-            const type = document.getElementById('game-type').value;
+        // SYNTHESIS COMPILER CONTROLLER
+        async function generateGameCode() {
+            const concept = document.getElementById('game-prompt').value.trim();
             const model = document.getElementById('game-model').value;
 
-            if(!prompt) return alert('Prompt must contain characters before exporting structural schema.');
-
-            mockCommunityGames.unshift({
-                title: `User Engine Seed #${Math.floor(Math.random() * 900 + 100)}`,
-                type,
-                model,
-                prompt
-            });
-
-            renderCommunityHub();
-            alert('Configured setup pushed to your temporary active session hub.');
-        }
-
-        // ENGINE RUNTIME CONTROLLER
-        async function initializeGame() {
-            const basePrompt = document.getElementById('game-prompt').value.trim();
-            const type = document.getElementById('game-type').value;
-            const model = document.getElementById('game-model').value;
-            
-            if(!basePrompt) return alert('Specify system configuration limits inside main text block UI.');
+            if(!concept) return alert('Supply deployment conditions in configuration box first.');
             if(!userApiKey) return switchView('landing');
 
-            const outputContainer = document.getElementById('game-output');
+            const previewFrame = document.getElementById('game-preview');
+            const codeOutput = document.getElementById('code-output');
             const consoleStatus = document.getElementById('console-status');
-            const modelTag = document.getElementById('active-model-tag');
+            const statusLight = document.getElementById('status-light');
+            const compileBtn = document.getElementById('compile-btn');
 
-            outputContainer.innerHTML = `<div class="text-indigo-400 animate-pulse font-mono text-xs">Compiling runtime matrix architecture... Initiating pipeline request...</div>`;
-            consoleStatus.innerText = "COMPILING RUNTIME";
+            // Set visual compiling state
+            consoleStatus.innerText = "COMPILING HTML METRIC CHANNELS...";
             consoleStatus.className = "text-xs font-mono text-amber-400 uppercase tracking-widest";
-            modelTag.innerText = model;
+            statusLight.className = "w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse";
+            compileBtn.disabled = true;
+            compileBtn.innerText = "Synthesizing Source Matrix...";
 
-            systemRulePrompt = `You are a strict standalone game engine orchestrator operating a "${type}" framework. 
-Your behavior guidelines: ${basePrompt}. 
-Respond concisely keeping under 150 words per generation cycle. Always present immersive lore narration immediately followed by actionable user constraints or status indicators contextually relevant. Do not break character. Do not output metadata blocks.`;
-
-            currentGameState = [
-                { role: "system", content: systemRulePrompt },
-                { role: "user", content: "Wake up engine. Output the starting narrative drop-point and baseline status metrics." }
-            ];
-
-            await callOpenRouter(model);
-        }
-
-        async function submitPlayerAction(e) {
-            e.preventDefault();
-            const playerInputEl = document.getElementById('player-input');
-            const actionText = playerInputEl.value.trim();
-            if(!actionText) return;
-
-            playerInputEl.value = '';
-            const model = document.getElementById('game-model').value;
-            const outputContainer = document.getElementById('game-output');
-
-            outputContainer.innerHTML += `<div class="mt-4 text-indigo-400 font-bold font-mono">> ${actionText}</div>`;
-            outputContainer.innerHTML += `<div id="runtime-loading" class="text-slate-500 animate-pulse font-mono text-xs mt-2">Computing trajectory variables...</div>`;
-            outputContainer.scrollTop = outputContainer.scrollHeight;
-
-            currentGameState.push({ role: "user", content: actionText });
-            await callOpenRouter(model);
-        }
-
-        async function callOpenRouter(model) {
-            const outputContainer = document.getElementById('game-output');
-            const consoleStatus = document.getElementById('console-status');
-            const playerInputEl = document.getElementById('player-input');
-            const submitBtn = document.getElementById('submit-action-btn');
-
-            playerInputEl.disabled = true;
-            submitBtn.disabled = true;
+            const systemCommand = `You are a specialized code generation engine for interactive browser modules.
+Task: Write a completely standalone web page component matching the user description.
+Rules:
+1. Provide valid syntax containing document types, inline scripts, styles, and body tags.
+2. It must be highly aesthetic, interactive, dynamic, responsive, and error-free.
+3. You can utilize script tags loading external Tailwind modules like: <script src="https://cdn.tailwindcss.com"><\/script> if useful for formatting.
+4. Output exclusively code content wrapped inside a standard single block matching layout:
+\`\`\`html
+[Code content here]
+\`\`\`
+No conversational chatter, markdown descriptions, or introductions. Only the requested clean code matrix block.`;
 
             try {
-                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                const call = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Authorization": `Bearer ${userApiKey}`,
@@ -339,44 +289,53 @@ Respond concisely keeping under 150 words per generation cycle. Always present i
                     },
                     body: JSON.stringify({
                         model: model,
-                        messages: currentGameState
+                        messages: [
+                            { role: "system", content: systemCommand },
+                            { role: "user", content: `Create this app now: ${concept}` }
+                        ]
                     })
                 });
 
-                const data = await response.json();
-                
-                // Cleanup loading state tracking
-                const loader = document.getElementById('runtime-loading');
-                if(loader) loader.remove();
+                const parser = await call.json();
 
-                if(data.choices && data.choices[0]) {
-                    const aiResponse = data.choices[0].message.content;
-                    currentGameState.push({ role: "assistant", content: aiResponse });
+                if(parser.choices && parser.choices[0]) {
+                    let textResult = parser.choices[0].message.content;
 
-                    // Format line breaks cleanly inside simulated terminal DOM wrapper
-                    const block = document.createElement('div');
-                    block.className = "mt-3 bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 whitespace-pre-wrap";
-                    block.innerText = aiResponse;
-                    outputContainer.appendChild(block);
-
-                    consoleStatus.innerText = "ONLINE / LISTENING";
-                    consoleStatus.className = "text-xs font-mono text-emerald-400 uppercase tracking-widest";
+                    // Extractor Logic regex
+                    let exactCode = textResult;
+                    const regex = /```html([\s\S]*?)```/;
+                    const checkMatch = textResult.match(regex);
                     
-                    playerInputEl.placeholder = "Enter response or choice trajectory...";
-                    playerInputEl.disabled = false;
-                    submitBtn.disabled = false;
-                    playerInputEl.focus();
+                    if(checkMatch) {
+                        exactCode = checkMatch[1].trim();
+                    } else {
+                        const genericRegex = /```([\s\S]*?)```/;
+                        const genericMatch = textResult.match(genericRegex);
+                        if(genericMatch) exactCode = genericMatch[1].trim();
+                    }
+
+                    // Update UI views
+                    codeOutput.textContent = exactCode;
+                    previewFrame.srcdoc = exactCode;
+
+                    consoleStatus.innerText = "SANDBOX DEPLOYED LIVE";
+                    consoleStatus.className = "text-xs font-mono text-emerald-400 uppercase tracking-widest";
+                    statusLight.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]";
+                    switchTab('preview');
                 } else {
-                    throw new Error(data.error?.message || "Invalid payload response schema received.");
+                    throw new Error(parser.error?.message || "Invalid payload arrays retrieved from model interface.");
                 }
 
-            } catch (err) {
-                console.error(err);
-                outputContainer.innerHTML += `<div class="text-red-400 font-bold mt-4 font-mono">[CRITICAL ENGINE ERROR]: ${err.message}</div>`;
-                consoleStatus.innerText = "CORE FAULT DETECTED";
+            } catch(e) {
+                console.error(e);
+                consoleStatus.innerText = "CORE CODE INTERRUPT";
                 consoleStatus.className = "text-xs font-mono text-red-500 uppercase tracking-widest";
+                statusLight.className = "w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]";
+                alert("Compilation failed to process: " + e.message);
+            } finally {
+                compileBtn.disabled = false;
+                compileBtn.innerText = "Compile & Run Game";
             }
-            outputContainer.scrollTop = outputContainer.scrollHeight;
         }
     </script>
 </body>
