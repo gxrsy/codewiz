@@ -3,220 +3,648 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Wisp.ai - Platform Hub</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-            position: relative;
-            font-family: Arial, sans-serif;
-            /* Prevents users from selecting text/elements accidentally */
-            user-select: none; 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Background Image Setup */
-        .bg-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out forwards;
         }
-
-        .fullscreen-bg {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; 
-            transform: scale(1.15); 
-            display: block;
-            filter: brightness(0.5); 
-            /* Disable native browser image dragging */
-            pointer-events: none; 
+        /* Custom scrollbar matching dark slate layouts */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-
-        /* Top-left search bar */
-        .search-container {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
+        ::-webkit-scrollbar-track {
+            background: #020617;
         }
-
-        .search-bar {
-            width: 250px;
-            padding: 10px 15px;
-            font-size: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0px; 
-            background-color: rgba(128, 128, 128, 0.4); 
-            color: #ffffff;
-            outline: none;
-            transition: background-color 0.3s ease;
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
         }
-
-        .search-bar:focus {
-            background-color: rgba(150, 150, 150, 0.6);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .search-bar::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* Top-right UI when logged in */
-        .auth-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 10;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: rgba(128, 128, 128, 0.4);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn:hover {
-            background-color: rgba(150, 150, 150, 0.6);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background-color: rgba(128, 128, 128, 0.4);
-            padding: 5px 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        /* Centered Rectangle Login Box */
-        .login-box-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            background-color: rgba(40, 40, 40, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 30px;
-            width: 300px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            box-shadow: 0px 4px 25px rgba(0,0,0,0.7);
-        }
-
-        .login-box-center input {
-            padding: 10px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            outline: none;
-            font-size: 14px;
-        }
-
-        /* Bottom sign up footer inside the center box */
-        .signup-footer {
-            margin-top: 10px;
-            text-align: center;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .signup-link {
-            color: #4da6ff;
-            text-decoration: none;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-
-        .signup-link:hover {
-            text-decoration: underline;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
 
-    <div class="search-container">
-        <input type="text" class="search-bar" placeholder="search games...">
-    </div>
+    <div id="root"></div>
 
-    <div class="auth-container">
-        <div id="userProfile" class="user-profile hidden">
-            <span id="welcomeText">Hi, User</span>
-            <button class="btn" style="padding: 5px 10px; font-size: 14px;" onclick="handleSignOut()">Sign Out</button>
-        </div>
-    </div>
+    <script type="text/babel">
+        // Deconstruct React Hooks for standard use
+        const { useState, useEffect } = React;
 
-    <div id="loginBox" class="login-box-center">
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button class="btn" onclick="handleLogin()">Login</button>
-        
-        <div class="signup-footer">
-            don't have an account?<span class="signup-link" onclick="handleSignUpRedirect()">sign up</span>
-        </div>
-    </div>
+        // ==========================================
+        // CONFIGURATIONS & INITIAL SEED DATA
+        // ==========================================
+        const INITIAL_GAMES = [
+            { id: 1, title: "Neon Cyber Runner", creator: "AlexVortex", thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=400", tags: ["Action", "Sci-Fi"] },
+            { id: 2, title: "Quantum Chess", creator: "DrGrid", thumbnail: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?q=80&w=400", tags: ["Strategy", "Puzzle"] },
+            { id: 3, title: "Shadow Rogue Dungeon", creator: "PixelKnight", thumbnail: "https://images.unsplash.com/photo-1612287230202-1bf1d85d1bdf?q=80&w=400", tags: ["RPG", "Retro"] },
+        ];
 
-    <div class="bg-container">
-        <img src="back.png" alt="Background Image" class="fullscreen-bg" draggable="false">
-    </div>
+        const AI_MODELS = [
+            { id: 'low-1', name: 'Llama 3 8B (Fast)', tier: 'LOW', desc: 'Instant responses, ideal for quick boilerplate.' },
+            { id: 'mid-1', name: 'Mistral 7B Instruct', tier: 'MID', desc: 'Balanced intelligence for game logic.' },
+            { id: 'high-1', name: 'DeepSeek Coder V2', tier: 'HIGH', desc: 'Advanced structure and state architecture.' },
+            { id: 'best-1', name: 'Claude 3.5 Sonnet', tier: 'BEST', desc: 'Flagship tier. Masterclass complex mechanics.' },
+        ];
 
-    <script>
-        window.onload = function() {
-            const savedUser = localStorage.getItem("loggedInUser");
-            if (savedUser) {
-                showLoggedInState(savedUser);
-            }
+        const THEMES = {
+            'classic-dark': { bg: 'bg-slate-950', panel: 'bg-slate-900', border: 'border-slate-800', text: 'text-slate-100', accent: 'bg-indigo-600', hoverAccent: 'hover:bg-indigo-500', textAccent: 'text-indigo-400' },
+            'cyberpunk': { bg: 'bg-neutral-950', panel: 'bg-neutral-950', border: 'border-yellow-500/40', text: 'text-yellow-400', accent: 'bg-fuchsia-700', hoverAccent: 'hover:bg-fuchsia-600', textAccent: 'text-fuchsia-400' },
+            'oled-black': { bg: 'bg-black', panel: 'bg-zinc-950', border: 'border-zinc-800', text: 'text-zinc-100', accent: 'bg-emerald-600', hoverAccent: 'hover:bg-emerald-500', textAccent: 'text-emerald-400' }
         };
 
-        function handleLogin() {
-            const user = document.getElementById("username").value.trim();
-            const pass = document.getElementById("password").value.trim();
-
-            if (user && pass) {
-                localStorage.setItem("loggedInUser", user);
-                showLoggedInState(user);
-                
-                // Clear fields
-                document.getElementById("username").value = "";
-                document.getElementById("password").value = "";
-            } else {
-                alert("Please fill out both fields.");
-            }
+        // Helper component to easily inject Lucide icons in standalone mode
+        function Icon({ name, size = 16, className = "", fill = "none" }) {
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={`inline-block ${className}`} fill={fill}></i>;
         }
 
-        function handleSignOut() {
-            localStorage.removeItem("loggedInUser");
-            document.getElementById("userProfile").classList.add("hidden");
-            document.getElementById("loginBox").classList.remove("hidden");
+        // ==========================================
+        // ROOT PLATFORM ROUTER APPLICATION
+        // ==========================================
+        function App() {
+            const [currentPage, setCurrentPage] = useState('/'); // '/' | '/editor' | '/dashboard' | '/login'
+            const [user, setUser] = useState({ username: 'CreatorPro', loggedIn: true });
+            const [credits, setCredits] = useState(250);
+            const [games, setGames] = useState(INITIAL_GAMES);
+            const [homeTheme, setHomeTheme] = useState('classic-dark');
+            const [editorTheme, setEditorTheme] = useState('classic-dark');
+            const [showSettings, setShowSettings] = useState(false);
+
+            // Workspace layout persistence states
+            const [editorCode, setEditorCode] = useState(`// AI Generated Game Output\nconsole.log("Game Canvas Initialized successfully.");`);
+            const [editorPrompt, setEditorPrompt] = useState('');
+            const [selectedModel, setSelectedModel] = useState(AI_MODELS[2]);
+            const [chatHistory, setChatHistory] = useState([
+                { role: 'assistant', text: 'Welcome developer! I am your AI system engine. Pick a tier model below (all 100% free) and outline the core features of your game.' }
+            ]);
+
+            const activeTheme = currentPage === '/editor' ? THEMES[editorTheme] : THEMES[homeTheme];
+
+            // Trigger Lucide updates on router swaps
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            }, [currentPage, showSettings]);
+
+            const handleNavigate = (page) => {
+                if (!user.loggedIn && (page === '/editor' || page === '/dashboard')) {
+                    setCurrentPage('/login');
+                } else {
+                    setCurrentPage(page);
+                }
+            };
+
+            return (
+                <div className={`min-h-screen ${activeTheme.bg} ${activeTheme.text} transition-colors duration-300 flex flex-col justify-between font-sans`}>
+                    
+                    {/* TOP DEPLOYMENT CONTAINER NAVIGATION */}
+                    <nav className={`sticky top-0 z-40 flex items-center justify-between px-6 py-4 ${activeTheme.panel} border-b ${activeTheme.border}`}>
+                        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => handleNavigate('/')}>
+                            <div className="p-2 bg-gradient-to-tr from-indigo-500 to-fuchsia-500 rounded-xl text-white flex items-center justify-center">
+                                <Icon name="terminal" size={20} />
+                            </div>
+                            <span className="font-extrabold text-xl tracking-tight text-white">
+                                WISP<span className="text-indigo-500">.AI</span>
+                            </span>
+                        </div>
+
+                        <div className="flex items-center space-x-6">
+                            <button onClick={() => handleNavigate('/')} className="hover:text-indigo-400 transition font-medium text-sm">Browse</button>
+                            <button onClick={() => handleNavigate('/editor')} className="hover:text-indigo-400 transition font-medium text-sm flex items-center gap-1">
+                                <Icon name="sparkles" size={14} /> Workspace
+                            </button>
+                            
+                            {user.loggedIn && (
+                                <div className="flex items-center bg-slate-900 border border-slate-800 rounded-full px-3 py-1">
+                                    <Icon name="zap" size={12} className="text-yellow-400 mr-1.5" />
+                                    <span className="text-xs font-bold tracking-wider text-white">{credits} <span className="text-slate-400 text-[10px] font-normal">Credits</span></span>
+                                </div>
+                            )}
+
+                            {user.loggedIn ? (
+                                <div className="flex items-center space-x-3">
+                                    <button onClick={() => handleNavigate('/dashboard')} className="flex items-center space-x-2 text-xs bg-slate-900 hover:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-800 transition text-white">
+                                        <Icon name="user" size={14} />
+                                        <span>{user.username}</span>
+                                    </button>
+                                    <button onClick={() => setUser({ username: '', loggedIn: false })} className="text-slate-400 hover:text-red-400 transition flex items-center">
+                                        <Icon name="log-out" size={16} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <button onClick={() => handleNavigate('/login')} className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg font-medium text-sm transition text-white">
+                                    Get Started
+                                </button>
+                            )}
+
+                            <button onClick={() => setShowSettings(!showSettings)} className="p-2 hover:bg-slate-800 rounded-lg transition text-slate-400 hover:text-white flex items-center">
+                                <Icon name="sliders" size={18} />
+                            </button>
+                        </div>
+                    </nav>
+
+                    {/* INTERFACE DRAWER PANEL OVERLAY (THEME SETTINGS) */}
+                    {showSettings && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-end">
+                            <div className="w-80 bg-slate-900 h-full p-6 border-l border-slate-800 shadow-2xl flex flex-col justify-between text-slate-100">
+                                <div>
+                                    <div className="flex items-center justify-between mb-8">
+                                        <h3 className="font-bold text-base text-white flex items-center gap-2">
+                                            <Icon name="sliders" size={16} /> UI Theme Matrix
+                                        </h3>
+                                        <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white text-xs">Close</button>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Home & Profile Theme</label>
+                                            <div className="grid grid-cols-1 gap-2">
+                                                {Object.keys(THEMES).map(tKey => (
+                                                    <button key={tKey} onClick={() => setHomeTheme(tKey)} className={`p-2 rounded-lg border text-left text-xs transition ${homeTheme === tKey ? 'border-indigo-500 bg-indigo-500/10 text-white' : 'border-slate-800 bg-slate-950/50 hover:bg-slate-800 text-slate-300'}`}>
+                                                        {tKey.replace('-', ' ').toUpperCase()}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Editor Workspace Theme</label>
+                                            <div className="grid grid-cols-1 gap-2">
+                                                {Object.keys(THEMES).map(tKey => (
+                                                    <button key={tKey} onClick={() => setEditorTheme(tKey)} className={`p-2 rounded-lg border text-left text-xs transition ${editorTheme === tKey ? 'border-indigo-500 bg-indigo-500/10 text-white' : 'border-slate-800 bg-slate-950/50 hover:bg-slate-800 text-slate-300'}`}>
+                                                        {tKey.replace('-', ' ').toUpperCase()}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="text-[10px] text-slate-500 border-t border-slate-800 pt-4">
+                                    Theme spaces track state configurations isolated by layout scopes.
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* WORKSPACE APP TARGET CONTAINER INJECTION */}
+                    <main className="p-6 flex-1 max-w-7xl w-full mx-auto">
+                        {currentPage === '/' && <HomePage activeTheme={activeTheme} games={games} handleNavigate={handleNavigate} />}
+                        {currentPage === '/login' && <LoginPage setUser={setUser} setCredits={setCredits} handleNavigate={handleNavigate} />}
+                        {currentPage === '/dashboard' && <DashboardPage user={user} credits={credits} setCredits={setCredits} games={games} setGames={setGames} activeTheme={activeTheme} />}
+                        {currentPage === '/editor' && (
+                            <EditorPage 
+                                activeTheme={activeTheme} 
+                                selectedModel={selectedModel} 
+                                setSelectedModel={setSelectedModel}
+                                chatHistory={chatHistory}
+                                setChatHistory={setChatHistory}
+                                editorPrompt={editorPrompt}
+                                setEditorPrompt={setEditorPrompt}
+                                editorCode={editorCode}
+                                setEditorCode={setEditorCode}
+                                games={games}
+                                setGames={setGames}
+                                credits={credits}
+                                setCredits={setCredits}
+                                user={user}
+                            />
+                        )}
+                    </main>
+
+                    {/* SYSTEM ROOT FOOTER LAYER */}
+                    <footer className={`py-4 text-center text-xs text-slate-600 border-t ${activeTheme.border} ${activeTheme.panel}`}>
+                        Wisp Engine Console Matrix • All Tiers Operational
+                    </footer>
+                </div>
+            );
         }
 
-        function showLoggedInState(username) {
-            document.getElementById("loginBox").classList.add("hidden");
-            document.getElementById("userProfile").classList.remove("hidden");
-            document.getElementById("welcomeText").innerText = username;
+        // ==========================================
+        // 1. HOME DISCOVERY FEED INTERFACE (`/`)
+        // ==========================================
+        function HomePage({ activeTheme, games, handleNavigate }) {
+            const [searchQuery, setSearchQuery] = useState('');
+            
+            const filteredGames = games.filter(game => 
+                game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                game.creator.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                game.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+            );
+
+            return (
+                <div className="space-y-8 animate-fadeIn">
+                    <div className="text-center py-10 max-w-3xl mx-auto space-y-4">
+                        <span className="px-3 py-1 text-[10px] font-bold bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-full tracking-wider uppercase">
+                            ⚡ Edge Generation Framework
+                        </span>
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white">
+                            Compile Web Architectures <br />
+                            <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-yellow-400 bg-clip-text text-transparent">
+                                Instantly Via OpenRouter
+                            </span>
+                        </h1>
+                        <p className="text-slate-400 text-sm md:text-base max-w-xl mx-auto">
+                            Design micro-games directly from canvas layouts. Choose free computation clusters, run source previews, and publish directly to global feed trees.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 backdrop-blur-md">
+                        <div className="relative w-full md:w-96">
+                            <div className="absolute left-3 top-2.5 text-slate-500 flex items-center"><Icon name="search" size={16} /></div>
+                            <input 
+                                type="text" 
+                                placeholder="Filter games by title, creator, mechanics..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                            {['All Systems', 'Action', 'RPG', 'Puzzle', 'Strategy'].map((tag, idx) => (
+                                <button key={idx} onClick={() => setSearchQuery(tag === 'All Systems' ? '' : tag)} class={`px-2.5 py-1 text-[10px] font-bold uppercase rounded tracking-wider border transition ${searchQuery === tag ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'}`}>
+                                    {tag}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 className="text-base font-bold mb-4 flex items-center gap-2 text-white">
+                            <Icon name="globe" size={16} className="text-indigo-400" /> Platform Feed Modules
+                        </h2>
+                        {filteredGames.length === 0 ? (
+                            <div className="text-center py-12 border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
+                                No active builds matches found for context pattern: "{searchQuery}".
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredGames.map((game) => (
+                                    <div key={game.id} className="group bg-slate-900/40 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition-all flex flex-col justify-between">
+                                        <div>
+                                            <div className="relative aspect-video w-full bg-slate-950 overflow-hidden">
+                                                <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80" />
+                                            </div>
+                                            <div className="p-4 space-y-2">
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {game.tags.map((t, i) => (
+                                                        <span key={i} className="text-[9px] uppercase font-mono px-2 py-0.5 bg-slate-950 border border-slate-800 text-slate-400 rounded">
+                                                            {t}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                <h3 className="font-bold text-base text-white group-hover:text-indigo-400 transition tracking-tight">{game.title}</h3>
+                                                <p className="text-[11px] text-slate-500">Node Creator: <span className="text-slate-300 font-medium">{game.creator}</span></p>
+                                            </div>
+                                        </div>
+                                        <div className="p-4 pt-0">
+                                            <button onClick={() => alert(`Connecting virtual container for: ${game.title}`)} className="w-full bg-slate-950 border border-slate-800 hover:bg-indigo-600 hover:border-indigo-500 text-slate-300 hover:text-white py-1.5 rounded-lg text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5">
+                                                <Icon name="play" size={12} className="fill-current" /> EXECUTE RUNTIME CONTAINER
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
         }
 
-        function handleSignUpRedirect() {
-            alert("Redirecting to sign up process...");
-            // You can replace this alert with a window.location.href to link to a registration page later
+        // ==========================================
+        // 2. ACCOUNT NODE ACCESS SYSTEM (`/login`)
+        // ==========================================
+        function LoginPage({ setUser, setCredits, handleNavigate }) {
+            const [isSignup, setIsSignup] = useState(false);
+            const [formUser, setFormUser] = useState('');
+
+            const handleAuthSubmit = (e) => {
+                e.preventDefault();
+                if (!formUser.trim()) return;
+                setUser({ username: formUser, loggedIn: true });
+                setCredits(250); // Set initial seed credits allocation array
+                handleNavigate('/dashboard');
+            };
+
+            return (
+                <div className="max-w-md mx-auto my-12 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6 animate-fadeIn">
+                    <div className="text-center space-y-2">
+                        <div className="inline-flex p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
+                            <Icon name="key" size={20} />
+                        </div>
+                        <h2 className="text-xl font-bold text-white tracking-tight">
+                            {isSignup ? 'Spawn New Developer Account' : 'Authenticate Console Identity'}
+                        </h2>
+                        <p className="text-xs text-slate-400">
+                            {isSignup ? 'Provisioning automatically tracks +250 execution credits.' : 'Input credentials to connect standard routing variables.'}
+                        </p>
+                    </div>
+
+                    <form onSubmit={handleAuthSubmit} className="space-y-4">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Unique Handle / Identity</label>
+                          <input type="text" required placeholder="e.g., MatrixWeaver" value={formUser} onChange={(e) => setFormUser(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Secure Password Node</label>
+                          <input type="password" required placeholder="••••••••" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition" />
+                        </div>
+                        <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-xs font-bold tracking-wide transition shadow-lg">
+                            {isSignup ? 'GENERATE PIPELINE PRIVILEGES' : 'ESTABLISH LINK'}
+                        </button>
+                    </form>
+
+                    <div className="text-center pt-2">
+                        <button onClick={() => setIsSignup(!isSignup)} className="text-[11px] text-slate-400 hover:text-indigo-400 transition">
+                            {isSignup ? 'Already verified? Access terminal link logs' : 'Need development clearance? Provision an account node'}
+                        </button>
+                    </div>
+                </div>
+            );
         }
+
+        // ==========================================
+        // 3. STORAGE PROFILE & DIFFUSION LAYER (`/dashboard`)
+        // ==========================================
+        function DashboardPage({ user, credits, setCredits, games, setGames, activeTheme }) {
+            const [genPrompt, setGenPrompt] = useState('');
+            const [isGenerating, setIsGenerating] = useState(false);
+            const [generatedUrl, setGeneratedUrl] = useState('');
+
+            const userGames = games.filter(g => g.creator === user.username);
+
+            const handleGenerateThumbnail = (e) => {
+                e.preventDefault();
+                if (credits < 50) {
+                    alert("Insufficient credit loops! Generation requires minimum 50 units.");
+                    return;
+                }
+                if (!genPrompt.trim()) return;
+
+                setIsGenerating(true);
+                setTimeout(() => {
+                    setCredits(prev => prev - 50);
+                    // Dynamically map a visual payload matrix output placeholder
+                    setGeneratedUrl(`https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=400`);
+                    setIsGenerating(false);
+                }, 1500);
+            };
+
+            return (
+                <div className="space-y-6 animate-fadeIn">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 flex items-center justify-between">
+                            <div className="space-y-1">
+                                <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">Active Security Account</span>
+                                <h2 className="text-xl font-extrabold text-white">{user.username}</h2>
+                                <p className="text-[11px] text-slate-500">System State Hook status: <span className="text-emerald-400">Node Sync Complete</span></p>
+                            </div>
+                            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-center">
+                                <div className="text-yellow-400 mb-0.5"><Icon name="trophy" size={16} /></div>
+                                <span className="block text-lg font-black text-white">{userGames.length}</span>
+                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Packages</span>
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-slate-900 to-indigo-950 border border-indigo-900/40 rounded-xl p-5 flex flex-col justify-between">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-indigo-300 tracking-wider uppercase">Balance Node</span>
+                                <Icon name="zap" size={14} className="text-yellow-400" />
+                            </div>
+                            <div className="my-1">
+                                <span className="text-2xl font-black text-white tracking-tight">{credits}</span>
+                                <span className="text-slate-400 text-xs ml-1">vcr</span>
+                            </div>
+                            <button onClick={() => setCredits(c => c + 100)} className="w-full bg-indigo-600/20 hover:bg-indigo-600 border border-indigo-500/30 text-indigo-200 hover:text-white py-1 rounded text-[10px] font-bold tracking-wider transition">
+                                DISPATCH DEV DROP (+100)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
+                            <div>
+                                <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
+                                    <Icon name="image" size={16} className="text-fuchsia-400" /> Image Asset Generator
+                                </h3>
+                                <p className="text-[11px] text-slate-400 mt-1">Generate dynamic game thumbnails at the cost of exactly 50 credits per execution payload.</p>
+                            </div>
+                            <hr className="border-slate-800" />
+                            <form onSubmit={handleGenerateThumbnail} className="space-y-3">
+                                <div>
+                                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Asset Model Configuration Prompt</label>
+                                    <textarea rows={3} placeholder="Isometric pixel game dungeon asset structure, high rendering spec..." value={genPrompt} onChange={(e) => setGenPrompt(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-fuchsia-500 transition resize-none" />
+                                </div>
+                                <div className="flex items-center justify-between text-[10px] text-slate-400 bg-slate-950 p-2 rounded border border-slate-800">
+                                    <span>Cost Profile:</span>
+                                    <span className="font-bold text-yellow-400">50 Credits</span>
+                                </div>
+                                <button type="submit" disabled={isGenerating || !genPrompt.trim()} className="w-full bg-fuchsia-600 hover:bg-fuchsia-500 disabled:bg-slate-800 disabled:text-slate-500 text-white py-1.5 rounded text-xs font-bold tracking-wider transition">
+                                    {isGenerating ? 'RUNNING STABLE DIFFUSION...' : 'EXECUTE DIFFUSION MODEL'}
+                                </button>
+                            </form>
+
+                            {generatedUrl && (
+                                <div className="mt-2 border border-slate-800 rounded-lg p-2 bg-slate-950 space-y-2 animate-fadeIn">
+                                    <span className="text-[9px] font-bold uppercase text-emerald-400 flex items-center gap-1">
+                                        <Icon name="check-circle" size={10} /> Compilation Completed
+                                    </span>
+                                    <img src={generatedUrl} className="w-full aspect-video object-cover rounded border border-slate-800" />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-4">
+                            <h3 className="font-bold text-sm text-white mb-4 flex items-center gap-1.5">
+                                <Icon name="layout" size={16} className="text-indigo-400" /> Isolated Profile Sandboxes ({userGames.length})
+                            </h3>
+                            {userGames.length === 0 ? (
+                                <div className="text-center py-12 border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
+                                    No application builds pushed to global feed registry indexes yet.
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {userGames.map(game => (
+                                        <div key={game.id} className="bg-slate-950 border border-slate-800 p-2.5 rounded-lg flex items-center gap-3">
+                                            <img src={game.thumbnail} className="w-12 h-12 object-cover rounded border border-slate-800" />
+                                            <div>
+                                                <h4 className="font-bold text-xs text-white tracking-tight">{game.title}</h4>
+                                                <span className="inline-block text-[8px] uppercase font-mono px-1.5 py-0.2 bg-slate-955 border border-slate-800 rounded text-slate-400 mt-1">
+                                                    Pushed Live
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ==========================================
+        // 4. WORKSPACE ENGINE TERMINAL (`/editor`)
+        // ==========================================
+        function EditorPage({ 
+            activeTheme, selectedModel, setSelectedModel, chatHistory, setChatHistory,
+            editorPrompt, setEditorPrompt, editorCode, setEditorCode, games, setGames, user
+        }) {
+            const [activeTab, setActiveTab] = useState('preview');
+            const [isCompiling, setIsCompiling] = useState(false);
+            const [newGameTitle, setNewGameTitle] = useState('My AI Sandbox Build');
+
+            const handleSendPrompt = (e) => {
+                e.preventDefault();
+                if (!editorPrompt.trim()) return;
+
+                const userMsg = { role: 'user', text: editorPrompt };
+                setChatHistory(prev => [...prev, userMsg]);
+                setEditorPrompt('');
+                setIsCompiling(true);
+
+                setTimeout(() => {
+                    const generatedScaffold = `// Compiled via Wisp Engine Core using OpenRouter: ${selectedModel.name}\n// System Tier: ${selectedModel.tier} (0 Credit Cost Allocation Framework)\n\nfunction initializeGameSpace() {\n  const config = {\n    engineType: "Dynamic Render Canvas",\n    seedPrompt: "${editorPrompt.replace(/"/g, '\\"')}",\n    status: "READY"\n  };\n  console.log("Initialization Matrix complete.", config);\n}\n\ninitializeGameSpace();`;
+                    setEditorCode(generatedScaffold);
+                    setChatHistory(prev => [...prev, { 
+                        role: 'assistant', 
+                        text: `Engine logic structure processed via ${selectedModel.name} framework hooks. Output source blocks are compiled inside the code dashboard tab.` 
+                    }]);
+                    setIsCompiling(false);
+                }, 1200);
+            };
+
+            const handlePublish = () => {
+                const newBuild = {
+                    id: games.length + 1,
+                    title: newGameTitle,
+                    creator: user.loggedIn ? user.username : 'AnonymousDev',
+                    thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400',
+                    tags: ['AI-Native', 'Sandbox']
+                };
+                setGames([newBuild, ...games]);
+                alert(`Success! "${newGameTitle}" has been successfully appended to the main network feed discovery array.`);
+            };
+
+            return (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-160px)] animate-fadeIn">
+                    
+                    {/* CORE CONSOLE CHAT ELEMENT (5 COLS) */}
+                    <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl flex flex-col justify-between overflow-hidden">
+                        <div className="p-4 bg-slate-950/60 border-b border-slate-800/80 space-y-3">
+                            <div className="flex items-center justify-between">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                    <Icon name="layers" size={12} className="text-indigo-400" /> OpenRouter Model Array
+                                </label>
+                                <span className="text-[9px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-1.5 py-0.2 rounded font-bold uppercase tracking-wider">
+                                    100% Free Tiers
+                                </span>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2">
+                                {AI_MODELS.map(model => (
+                                    <button key={model.id} onClick={() => setSelectedModel(model)} className={`p-2 rounded-lg text-left border flex flex-col justify-between transition ${selectedModel.id === model.id ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
+                                        <div className="flex items-center justify-between w-full">
+                                            <span className="font-bold text-[11px] text-white truncate max-w-[80px]">{model.name.split(' ')[0]}</span>
+                                            <span className="text-[8px] font-black px-1.5 py-0.2 bg-slate-950 border border-slate-800 rounded text-slate-400">{model.tier}</span>
+                                        </div>
+                                        <span className="text-[9px] text-slate-500 truncate w-full mt-1">{model.desc}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex-1 p-4 overflow-y-auto space-y-4 max-h-[350px]">
+                            {chatHistory.map((msg, i) => (
+                                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[85%] rounded-xl p-2.5 text-xs leading-relaxed ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-950 text-slate-300 border border-slate-800 rounded-bl-none'}`}>
+                                        {msg.text}
+                                    </div>
+                                </div>
+                            ))}
+                            {isCompiling && (
+                                <div className="flex justify-start">
+                                    <div className="bg-slate-950 text-slate-500 border border-slate-800 rounded-xl rounded-bl-none p-2.5 text-xs animate-pulse w-full">
+                                        Mapping parameters to OpenRouter model array...
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <form onSubmit={handleSendPrompt} className="p-3 bg-slate-950/60 border-t border-slate-800">
+                            <div className="flex gap-2">
+                                <input type="text" value={editorPrompt} onChange={(e) => setEditorPrompt(e.target.value)} placeholder={`Build with ${selectedModel.tier} Tier (Free)...`} className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition" />
+                                <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg transition flex items-center justify-center">
+                                    <Icon name="send" size={14} />
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    {/* INTERACTIVE COMPILATION PREVIEW GRID (7 COLS) */}
+                    <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl flex flex-col justify-between overflow-hidden">
+                        <div className="p-3 bg-slate-950/60 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div className="flex items-center space-x-2 w-full sm:w-auto">
+                                <input type="text" value={newGameTitle} onChange={(e) => setNewGameTitle(e.target.value)} className="bg-slate-900 border border-slate-800 text-xs font-bold px-2.5 py-1.5 rounded text-white focus:outline-none focus:border-indigo-500 w-full sm:w-40" />
+                                <div className="flex border border-slate-800 rounded overflow-hidden shrink-0">
+                                    <button onClick={() => setActiveTab('preview')} className={`px-2.5 py-1.5 text-[11px] font-bold uppercase flex items-center gap-1 transition ${activeTab === 'preview' ? 'bg-slate-800 text-white' : 'bg-slate-950 text-slate-400'}`}>
+                                        Live Space
+                                    </button>
+                                    <button onClick={() => setActiveTab('code')} className={`px-2.5 py-1.5 text-[11px] font-bold uppercase flex items-center gap-1 transition ${activeTab === 'code' ? 'bg-slate-800 text-white' : 'bg-slate-950 text-slate-400'}`}>
+                                        Source
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button onClick={handlePublish} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-1 shadow-lg">
+                                <Icon name="plus" size={12} /> PUSH PRODUCTION NODE
+                            </button>
+                        </div>
+
+                        <div className="flex-1 bg-slate-950 p-4 font-mono text-xs overflow-auto">
+                            {activeTab === 'preview' ? (
+                                <div className="w-full h-full min-h-[280px] border border-slate-800 rounded-lg flex flex-col items-center justify-center bg-slate-900/30 text-center p-6 space-y-4">
+                                    <div className="w-12 h-12 rounded-full bg-slate-950 flex items-center justify-center border border-slate-800">
+                                        <Icon name="laptop" size={20} className="text-slate-600 animate-pulse" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <span className="text-xs font-bold text-slate-300 block">Workspace Application Iframe</span>
+                                        <p className="text-[10px] text-slate-500 max-w-xs mx-auto">
+                                            Live system active. Code mutations update structural interface rendering cycles automatically.
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <textarea readOnly value={editorCode} className="w-full h-full min-h-[280px] bg-transparent text-slate-400 resize-none focus:outline-none font-mono text-[11px]" />
+                            )}
+                        </div>
+
+                        <div className="bg-slate-950 px-4 py-1.5 border-t border-slate-800/80 flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                            <span>Vercel Deploy: EDGE_ACTIVE</span>
+                            <span className="text-emerald-500 font-bold">● Synchronized</span>
+                        </div>
+                    </div>
+
+                </div>
+            );
+        }
+
+        // Render Application context roots
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
