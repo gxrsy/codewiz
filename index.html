@@ -37,14 +37,14 @@
         <section id="view-landing" class="max-w-xl mx-auto text-center py-12 space-y-8">
             <div class="space-y-4">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                    Iterative Chat Updates & Interactive Controls
+                    Live Split-Screen Source & Free Model Engine
                 </span>
                 <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-                    Code, refine, and upgrade <br>
+                    Code, refine, and view source live <br>
                     <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">AI web apps via chat history.</span>
                 </h1>
                 <p class="text-slate-400 text-sm sm:text-base max-w-md mx-auto">
-                    Provide an OpenRouter key to build frontend code. Chat with the AI to tweak features incrementally instead of wiping your code clean every turn!
+                    Provide an OpenRouter key to build frontend code. Chat with the AI using 100% free models (with Auto routing) while inspecting live source code side-by-side!
                 </p>
             </div>
 
@@ -81,6 +81,7 @@
                     <div class="flex flex-col">
                         <label class="text-[10px] font-semibold text-slate-500 uppercase">Engine Selection (100% Free)</label>
                         <select id="game-model" onchange="saveCurrentProjectState()" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                            <option value="auto">Auto (Smart Free Router)</option>
                             <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash (Free)</option>
                             <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (Free)</option>
                             <option value="deepseek/deepseek-r1:free">DeepSeek R1 (Free)</option>
@@ -116,9 +117,9 @@
             <div class="xl:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden">
                 <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800">
-                            <button onclick="switchTab('preview')" id="tab-preview-btn" class="text-[11px] px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition">Live Screen</button>
-                            <button onclick="switchTab('code')" id="tab-code-btn" class="text-[11px] px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition">Code View</button>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-200">Live Split Workspace</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Preview & Source Code</span>
                         </div>
                         <span class="text-[10px] font-mono text-slate-500 uppercase tracking-wider" id="console-status">Ready</span>
                     </div>
@@ -135,43 +136,41 @@
                     </div>
                 </div>
 
-                <div class="flex-1 bg-slate-950 p-4 flex flex-col overflow-hidden">
+                <div class="flex-1 bg-slate-950 p-4 flex flex-col xl:flex-row gap-4 overflow-hidden">
                     
-                    <div id="browser-mockup-frame" class="flex-1 flex flex-col border border-slate-800 rounded-xl overflow-hidden bg-slate-900 shadow-2xl relative">
-                        
-                        <div id="browser-chrome-header" class="bg-slate-900 border-b border-slate-800 px-4 py-2 flex items-center gap-3 select-none">
+                    <div id="browser-mockup-frame" class="flex-1 flex flex-col border border-slate-800 rounded-xl overflow-hidden bg-slate-900 shadow-xl relative">
+                        <div class="bg-slate-900 border-b border-slate-800 px-3 py-2 flex items-center gap-2 select-none">
                             <div class="flex gap-1.5">
                                 <div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
                                 <div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
                                 <div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-500 text-xs font-mono ml-2">
-                                <span class="cursor-not-allowed hover:text-slate-300">←</span>
-                                <span class="cursor-not-allowed hover:text-slate-300">→</span>
-                                <span onclick="refreshSandboxRuntime()" class="cursor-pointer hover:text-slate-300">⟳</span>
-                            </div>
-                            <div class="flex-1 bg-slate-950 border border-slate-850 rounded-lg px-3 py-1 text-[11px] font-mono text-slate-400 flex items-center justify-between">
-                                <span class="truncate selection:bg-transparent">https://sandbox.local/project_app.html</span>
-                                <span class="text-slate-600 text-[9px] uppercase tracking-widest font-sans">Secure</span>
-                            </div>
+                            <span class="text-[10px] font-mono text-slate-500 uppercase tracking-wide ml-1">Live Preview</span>
                         </div>
 
                         <div class="flex-1 relative bg-slate-950 w-full h-full">
-                            
                             <div id="pause-shroud" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex flex-col items-center justify-center space-y-2 pointer-events-auto">
                                 <span class="text-xs font-mono text-amber-400 font-bold tracking-widest uppercase bg-amber-950/30 border border-amber-500/20 px-3 py-1 rounded">Execution Paused</span>
                                 <p class="text-[10px] text-slate-400">Flip the toggle option panel up top to resume execution cycles.</p>
                             </div>
 
                             <iframe id="game-preview" class="w-full h-full border-none bg-slate-950" srcdoc="<body style='background:#020617;color:#475569;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-size:12px;'><div>No application logic deployed yet. Speak to the engine chat history timeline pane to begin processing generation parameters.</div></body>"></iframe>
-                            
-                            <div id="code-container" class="hidden absolute inset-0 bg-slate-950 p-4 overflow-auto font-mono text-xs text-emerald-400 select-all whitespace-pre-wrap z-30">
-                                <pre><code id="code-output">Workspace logic script layers empty...</code></pre>
-                            </div>
                         </div>
-
                     </div>
-                    
+
+                    <div class="flex-1 flex flex-col border border-slate-800 rounded-xl overflow-hidden bg-slate-900 shadow-xl relative">
+                        <div class="bg-slate-900 border-b border-slate-800 px-3 py-2 flex items-center justify-between select-none">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span class="text-[10px] font-mono text-slate-300 uppercase tracking-wide font-bold">Live Source Code</span>
+                            </div>
+                            <button onclick="copySourceCode()" class="text-[10px] text-indigo-400 hover:underline">Copy Code</button>
+                        </div>
+                        <div class="flex-1 bg-slate-950 p-3 overflow-auto font-mono text-[11px] text-emerald-400 select-all whitespace-pre-wrap">
+                            <pre><code id="code-output">Workspace logic script layers empty...</code></pre>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -229,28 +228,6 @@
             document.getElementById('view-creator').classList.add('hidden');
             document.getElementById('view-community').classList.add('hidden');
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
-        }
-
-        function switchTab(tab) {
-            const preview = document.getElementById('game-preview');
-            const codeContainer = document.getElementById('code-container');
-            const previewBtn = document.getElementById('tab-preview-btn');
-            const codeBtn = document.getElementById('tab-code-btn');
-            const chromeHeader = document.getElementById('browser-chrome-header');
-
-            if (tab === 'preview') {
-                preview.classList.remove('hidden');
-                codeContainer.classList.add('hidden');
-                chromeHeader.classList.remove('opacity-40');
-                previewBtn.className = "text-[11px] px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition";
-                codeBtn.className = "text-[11px] px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition";
-            } else {
-                preview.classList.add('hidden');
-                codeContainer.classList.remove('hidden');
-                chromeHeader.classList.add('opacity-40');
-                previewBtn.className = "text-[11px] px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition";
-                codeBtn.className = "text-[11px] px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition";
-            }
         }
 
         function togglePlayState() {
@@ -317,6 +294,13 @@
             }
         }
 
+        function copySourceCode() {
+            const codeText = document.getElementById('code-output').textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+                alert("Source code copied to clipboard!");
+            });
+        }
+
         function updateAuthStatus(isConnected) {
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
@@ -357,7 +341,7 @@
         }
 
         function initProjectDatabase() {
-            const stored = localStorage.getItem('gengame_history_projects_v5');
+            const stored = localStorage.getItem('gengame_history_projects_v7');
             if(stored) {
                 try { projects = JSON.parse(stored); } catch(e) { projects = []; }
             }
@@ -377,7 +361,7 @@
                 id: id,
                 title: customTitle || `Sandbox Matrix #${projects.length + 1}`,
                 history: historyArray || [],
-                model: customModel || 'google/gemini-2.0-flash-exp:free',
+                model: customModel || 'auto',
                 code: customCode || ''
             };
             projects.unshift(newProj);
@@ -389,7 +373,7 @@
         }
 
         function syncProjectsToStorage() {
-            localStorage.setItem('gengame_history_projects_v5', JSON.stringify(projects));
+            localStorage.setItem('gengame_history_projects_v7', JSON.stringify(projects));
         }
 
         function saveCurrentProjectState() {
@@ -407,7 +391,7 @@
             const target = projects.find(p => p.id === currentProjectId);
             if(!target) return;
 
-            document.getElementById('game-model').value = target.model;
+            document.getElementById('game-model').value = target.model || 'auto';
             document.getElementById('code-output').textContent = target.code || "Code script layer empty...";
             
             const previewFrame = document.getElementById('game-preview');
@@ -478,7 +462,7 @@
 
         function clearAllProjectsConfirm() {
             if(confirm("Wipe entire database records array structures permanently?")) {
-                localStorage.removeItem('gengame_history_projects_v5');
+                localStorage.removeItem('gengame_history_projects_v7');
                 projects = [];
                 initProjectDatabase();
             }
@@ -590,6 +574,11 @@
             compileBtn.disabled = true;
             compileBtn.innerText = "...";
 
+            let modelToUse = targetProj.model;
+            if(!modelToUse || modelToUse === 'auto') {
+                modelToUse = 'google/gemini-2.0-flash-exp:free';
+            }
+
             const systemInstruction = `You are a professional browser application code generation engine. Your assignment is to output an entire single-file HTML component that completely executes the user's adjustments without omitting standard features or leaving incomplete fields.
 
 Current Application Codebase State:
@@ -621,7 +610,7 @@ Ensure your output matches this block pattern exactly and finish cleanly without
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model: targetProj.model,
+                        model: modelToUse,
                         messages: apiMessagesPayload,
                         max_tokens: 4000
                     })
@@ -660,7 +649,6 @@ Ensure your output matches this block pattern exactly and finish cleanly without
 
                     consoleStatus.innerText = "REVISION LIVE DEPLOYED";
                     consoleStatus.className = "text-[10px] font-mono text-emerald-400 uppercase tracking-widest";
-                    switchTab('preview');
                     syncProjectsToStorage();
                     renderChatHistoryUI(targetProj.history);
                 } else {
