@@ -79,12 +79,12 @@
 
                 <div class="pt-3 border-t border-slate-800 flex flex-col gap-2">
                     <div class="flex flex-col">
-                        <label class="text-[10px] font-semibold text-slate-500 uppercase">Engine Selection</label>
+                        <label class="text-[10px] font-semibold text-slate-500 uppercase">Engine Selection (100% Free)</label>
                         <select id="game-model" onchange="saveCurrentProjectState()" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
-                            <option value="openrouter/free">Auto Free Router</option>
-                            <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Free)</option>
-                            <option value="qwen/qwen3-coder:free">Qwen 3 Coder (Free)</option>
-                            <option value="google/gemini-2.5-flash:free">Gemini 2.5 Flash (Free)</option>
+                            <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash (Free)</option>
+                            <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (Free)</option>
+                            <option value="deepseek/deepseek-r1:free">DeepSeek R1 (Free)</option>
+                            <option value="qwen/qwen-2.5-coder-32b-instruct:free">Qwen 2.5 Coder 32B (Free)</option>
                         </select>
                     </div>
                     <button onclick="clearAllProjectsConfirm()" class="text-[11px] text-red-400 hover:underline text-left">Clear Database</button>
@@ -190,7 +190,7 @@
         let userApiKey = '';
         let projects = [];
         let currentProjectId = null;
-        let isCurrentStatePlaying = true; // State tracking engine variable
+        let isCurrentStatePlaying = true;
 
         const blueprints = [
             {
@@ -253,7 +253,6 @@
             }
         }
 
-        // TOGGLE SWITCH ROUTING MODULE
         function togglePlayState() {
             if (isCurrentStatePlaying) {
                 controlAction('pause');
@@ -268,7 +267,6 @@
             }
         }
 
-        // INTERACTIVE PANEL CONTROL STATE MACHINE
         function controlAction(action) {
             const previewFrame = document.getElementById('game-preview');
             const shroud = document.getElementById('pause-shroud');
@@ -282,7 +280,6 @@
                 isCurrentStatePlaying = true;
                 shroud.classList.add('hidden');
                 
-                // Adjust switch visual variables state settings to Play profile parameters
                 toggleSwitch.className = "w-8 h-4 bg-emerald-500/30 rounded-full relative transition-colors duration-200 focus:outline-none border border-emerald-500/50";
                 toggleDot.className = "absolute w-3 h-3 bg-emerald-400 rounded-full top-[1px] left-[17px] transition-all duration-200 shadow-[0_0_6px_rgba(16,185,129,0.6)]";
                 toggleLabel.innerText = "Running";
@@ -298,7 +295,6 @@
                 isCurrentStatePlaying = false;
                 shroud.classList.remove('hidden');
                 
-                // Adjust switch visual variables state settings to Pause profile parameters
                 toggleSwitch.className = "w-8 h-4 bg-amber-500/20 rounded-full relative transition-colors duration-200 focus:outline-none border border-amber-500/40";
                 toggleDot.className = "absolute w-3 h-3 bg-amber-400 rounded-full top-[1px] left-[2px] transition-all duration-200 shadow-[0_0_6px_rgba(245,158,11,0.5)]";
                 toggleLabel.innerText = "Paused";
@@ -360,9 +356,8 @@
             switchView('landing');
         }
 
-        // STORAGE INFRASTRUCTURE MANAGEMENT
         function initProjectDatabase() {
-            const stored = localStorage.getItem('gengame_history_projects_v4');
+            const stored = localStorage.getItem('gengame_history_projects_v5');
             if(stored) {
                 try { projects = JSON.parse(stored); } catch(e) { projects = []; }
             }
@@ -382,7 +377,7 @@
                 id: id,
                 title: customTitle || `Sandbox Matrix #${projects.length + 1}`,
                 history: historyArray || [],
-                model: customModel || 'openrouter/free',
+                model: customModel || 'google/gemini-2.0-flash-exp:free',
                 code: customCode || ''
             };
             projects.unshift(newProj);
@@ -393,10 +388,8 @@
             switchView('creator');
         }
 
-        document.getElementById('view-creator').addEventListener('click', () => {}, true);
-
         function syncProjectsToStorage() {
-            localStorage.setItem('gengame_history_projects_v4', JSON.stringify(projects));
+            localStorage.setItem('gengame_history_projects_v5', JSON.stringify(projects));
         }
 
         function saveCurrentProjectState() {
@@ -485,7 +478,7 @@
 
         function clearAllProjectsConfirm() {
             if(confirm("Wipe entire database records array structures permanently?")) {
-                localStorage.removeItem('gengame_history_projects_v4');
+                localStorage.removeItem('gengame_history_projects_v5');
                 projects = [];
                 initProjectDatabase();
             }
@@ -510,7 +503,6 @@
             }).join('');
         }
 
-        // LINK DEPLOYMENT PARSER SYSTEM
         function shareLinkToProject(id, event) {
             if(event) event.stopPropagation();
             const target = projects.find(p => p.id === id);
@@ -523,7 +515,7 @@
                 const outboundShareLink = `${window.location.origin}${window.location.pathname}?spawn=${encodedMatrix}`;
 
                 navigator.clipboard.writeText(outboundShareLink).then(() => {
-                    alert("Share link cloned to clipboard! Sending this URL to friends allows them to immediately restore your full chat history and code parameters.");
+                    alert("Share link cloned to clipboard!");
                 }).catch(() => {
                     prompt("Manual copy tracking connection parameter link:", outboundShareLink);
                 });
@@ -541,9 +533,8 @@
                     if(userApiKey) {
                         createNewProject(manifest.t, manifest.h, manifest.m, manifest.c);
                         window.history.replaceState({}, document.title, window.location.pathname);
-                        alert(`Successfully restored dynamic shared project matrix component configuration: ${manifest.t}`);
                     } else {
-                        alert("Shared configuration seed detected. Authenticate your API key configuration details first to mount the data block variables.");
+                        alert("Shared configuration seed detected. Authenticate your API key configuration details first.");
                     }
                 } catch(err) { console.error("String package read failure:", err); }
             }
@@ -570,7 +561,6 @@
             `).join('');
         }
 
-        // RIGOROUS INTERACTIVE ITERATIVE CHAT PARSING AGENT ENGINE
         async function submitChatPrompt(e) {
             e.preventDefault();
             const inputEl = document.getElementById('chat-input-box');
@@ -600,8 +590,7 @@
             compileBtn.disabled = true;
             compileBtn.innerText = "...";
 
-            const systemInstruction = `You are a professional browser application code generation engine running iterative real-time update cycles.
-Your assignment is to output an entire single-file HTML component that completely executes the user's adjustments without omitting standard features or leaving incomplete fields.
+            const systemInstruction = `You are a professional browser application code generation engine. Your assignment is to output an entire single-file HTML component that completely executes the user's adjustments without omitting standard features or leaving incomplete fields.
 
 Current Application Codebase State:
 \`\`\`html
@@ -617,7 +606,7 @@ Strict Extraction Generation Rules:
 <!DOCTYPE html>
 ...
 \`\`\`
-Ensure your output matches this block pattern exactly.`;
+Ensure your output matches this block pattern exactly and finish cleanly without hanging.`;
 
             const apiMessagesPayload = [
                 { role: 'system', content: systemInstruction },
@@ -633,7 +622,8 @@ Ensure your output matches this block pattern exactly.`;
                     },
                     body: JSON.stringify({
                         model: targetProj.model,
-                        messages: apiMessagesPayload
+                        messages: apiMessagesPayload,
+                        max_tokens: 4000
                     })
                 });
 
@@ -659,7 +649,7 @@ Ensure your output matches this block pattern exactly.`;
                     }
 
                     if (!exactCode || exactCode.length < 50 || (!exactCode.toLowerCase().includes('html') && !exactCode.toLowerCase().includes('body'))) {
-                        throw new Error("The model interface provided a text description response instead of compiling raw code blocks. Re-submit your prompt request statement instructions.");
+                        throw new Error("The model interface provided a text description response instead of compiling raw code blocks.");
                     }
 
                     targetProj.code = exactCode;
@@ -674,7 +664,7 @@ Ensure your output matches this block pattern exactly.`;
                     syncProjectsToStorage();
                     renderChatHistoryUI(targetProj.history);
                 } else {
-                    throw new Error(dataset.error?.message || "Invalid payload responses arrays returned from server endpoint maps.");
+                    throw new Error(dataset.error?.message || "Invalid payload responses returned from server endpoint.");
                 }
             } catch(err) {
                 console.error(err);
