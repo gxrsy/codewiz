@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GenGame Studio - AI Code Engine</title>
+    <title>GenGame Studio - AI Iterative Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
@@ -15,10 +19,10 @@
     <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('landing')">
             <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">G</div>
-            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">GenGame <span class="text-indigo-400 font-medium">Sandbox</span></span>
+            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">GenGame <span class="text-indigo-400 font-medium">Studio Pro</span></span>
         </div>
         <div class="flex items-center gap-4">
-            <button onclick="switchView('community')" class="text-sm font-medium text-slate-400 hover:text-white transition">Ideas Hub</button>
+            <button onclick="switchView('community')" class="text-sm font-medium text-slate-400 hover:text-white transition">Templates</button>
             <button onclick="switchView('creator')" id="nav-create-btn" class="hidden text-sm font-medium text-slate-400 hover:text-white transition">Workspace</button>
             <div id="api-status" class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700 text-xs text-slate-400">
                 <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse" id="status-dot"></span>
@@ -28,19 +32,19 @@
         </div>
     </nav>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col justify-center">
+    <main class="flex-1 w-full mx-auto p-4 flex flex-col justify-center max-w-[1800px]">
         
         <section id="view-landing" class="max-w-xl mx-auto text-center py-12 space-y-8">
             <div class="space-y-4">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                    Generates Instant Client-Side HTML Games
+                    Iterative Chat Updates & Interactive Controls
                 </span>
                 <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-                    Turn your descriptions <br>
-                    <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">into playable code web apps.</span>
+                    Code, refine, and upgrade <br>
+                    <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">AI web apps via chat history.</span>
                 </h1>
                 <p class="text-slate-400 text-sm sm:text-base max-w-md mx-auto">
-                    Provide an OpenRouter key to instantly synthesize functional HTML, complete styling, and full JS game logic directly in your browser viewport.
+                    Provide an OpenRouter key to build frontend code. Chat with the AI to tweak features incrementally instead of wiping your code clean every turn!
                 </p>
             </div>
 
@@ -50,102 +54,126 @@
                     <input type="password" id="api-key-input" placeholder="sk-or-v1-..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition placeholder:text-slate-600">
                 </div>
                 <button onclick="saveAPIKey()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-indigo-600/20 active:scale-[0.98]">
-                    Launch Coding Engine
+                    Launch Coding Sandbox
                 </button>
-                <p class="text-xs text-slate-500 text-center">
-                    Your authorization key is stored client-side via browser <code class="text-slate-400">localStorage</code>.
-                </p>
             </div>
         </section>
 
-        <section id="view-creator" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-6">
-                <div class="space-y-4">
+        <section id="view-creator" class="hidden grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch h-[calc(100vh-120px)] min-h-[750px]">
+            
+            <div class="xl:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between overflow-hidden">
+                <div class="flex flex-col space-y-4 overflow-hidden h-full">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                        <div>
+                            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Project Panel</h2>
+                            <p class="text-[11px] text-slate-500">Persistent local storage</p>
+                        </div>
+                        <button onclick="createNewProject()" class="px-2.5 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition text-xs font-medium flex items-center gap-1">
+                            <span>+ New Matrix</span>
+                        </button>
+                    </div>
+
+                    <div id="project-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                        </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
+                    <div class="flex flex-col">
+                        <label class="text-[10px] font-semibold text-slate-500 uppercase">Engine Selection</label>
+                        <select id="game-model" onchange="saveCurrentProjectState()" class="mt-1 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                            <option value="openrouter/free">Auto Free Router</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Free)</option>
+                            <option value="qwen/qwen3-coder:free">Qwen 3 Coder (Free)</option>
+                        </select>
+                    </div>
+                    <button onclick="clearAllProjectsConfirm()" class="text-[11px] text-red-400 hover:underline">Clear Database</button>
+                </div>
+            </div>
+
+            <div class="xl:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between overflow-hidden">
+                <div class="flex flex-col flex-1 overflow-hidden space-y-3">
                     <div>
-                        <h2 class="text-xl font-bold text-white">App Synthesis Panel</h2>
-                        <p class="text-xs text-slate-400">Instruct the LLM developer to build full components.</p>
+                        <h2 class="text-sm font-bold text-white uppercase tracking-wider">Evolution Chat History</h2>
+                        <p class="text-[11px] text-slate-400">Instruct the AI engineer to generate or modify changes live.</p>
                     </div>
 
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Game Spec Instructions</label>
-                            <textarea id="game-prompt" rows="8" placeholder="Example: A clicker game set in deep space with custom mining equipment upgrades, crystal score metrics, particles when clicking, and a neon cyber aesthetic layout..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition placeholder:text-slate-600 resize-none"></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Active Free Engine</label>
-                            <select id="game-model" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-indigo-500">
-                                <option value="openrouter/free">Auto Free Router (openrouter/free)</option>
-                                <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Free)</option>
-                                <option value="qwen/qwen3-coder:free">Qwen 3 Coder (Free)</option>
-                            </select>
-                        </div>
+                    <div id="chat-history-log" class="flex-1 overflow-y-auto space-y-3 bg-slate-950 p-3 rounded-xl border border-slate-850 font-sans text-xs">
+                        <div class="text-slate-500 italic">No instructions logged yet. Type your initialization sequence request below...</div>
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-800">
-                    <button id="compile-btn" onclick="generateGameCode()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition text-sm shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2">
-                        <span>Compile & Run Game</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    </button>
+                <div class="pt-3 border-t border-slate-800">
+                    <form onsubmit="submitChatPrompt(event)" class="flex gap-2">
+                        <textarea id="chat-input-box" rows="2" placeholder="e.g., Add a restart button / Make the backgrounds darker..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition placeholder:text-slate-600 resize-none"></textarea>
+                        <button type="submit" id="compile-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 rounded-xl transition text-xs font-semibold flex items-center justify-center">
+                            Send
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col h-[650px] overflow-hidden">
+            <div class="xl:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden">
                 <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700 shadow-[0_0_8px_rgba(255,255,255,0.1)]" id="status-light"></span>
-                        <span class="text-xs font-mono text-slate-400 uppercase tracking-widest" id="console-status">Workspace Ready</span>
+                    <div class="flex items-center gap-3">
+                        <div class="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800">
+                            <button onclick="switchTab('preview')" id="tab-preview-btn" class="text-[11px] px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition">Live Screen</button>
+                            <button onclick="switchTab('code')" id="tab-code-btn" class="text-[11px] px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition">Code View</button>
+                        </div>
+                        <span class="text-[10px] font-mono text-slate-500 uppercase hidden sm:inline" id="console-status">Ready</span>
                     </div>
-                    <div class="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800">
-                        <button onclick="switchTab('preview')" id="tab-preview-btn" class="text-xs px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition">Live Viewport</button>
-                        <button onclick="switchTab('code')" id="tab-code-btn" class="text-xs px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition">Source Code</button>
+
+                    <div class="flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+                        <button onclick="controlAction('start')" title="Start / Refresh App Sandbox" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:scale-110 active:scale-95 transition-all shadow-[0_0_8px_rgba(16,185,129,0.4)]"></button>
+                        <button onclick="controlAction('pause')" title="Pause Simulation State" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:scale-110 active:scale-95 transition-all shadow-[0_0_8px_rgba(245,158,11,0.4)]"></button>
+                        <button onclick="controlAction('stop')" title="Halt Canvas Output" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:scale-110 active:scale-95 transition-all shadow-[0_0_8px_rgba(244,63,94,0.4)]"></button>
                     </div>
                 </div>
 
-                <div class="flex-1 bg-slate-950 relative h-full w-full">
-                    <iframe id="game-preview" class="w-full h-full border-none bg-slate-950" srcdoc="<body style='background:#020617;color:#64748b;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-size:14px;'><div>Configure your app prompt parameters and fire up initialization.</div></body>"></iframe>
+                <div class="flex-1 bg-slate-950 relative w-full h-full">
+                    <div id="pause-shroud" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex flex-col items-center justify-center space-y-2 pointer-events-auto">
+                        <span class="text-xs font-mono text-amber-400 font-bold tracking-widest uppercase bg-amber-950/30 border border-amber-500/20 px-3 py-1 rounded">Execution Paused</span>
+                        <p class="text-[10px] text-slate-400">Click the green module button up top to resume cycles.</p>
+                    </div>
+
+                    <iframe id="game-preview" class="w-full h-full border-none bg-slate-950" srcdoc="<body style='background:#020617;color:#475569;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-size:12px;'><div>No application logic deployed yet. Speak to the engine chat to begin processing code blocks.</div></body>"></iframe>
                     
-                    <div id="code-container" class="hidden w-full h-full bg-slate-950 p-6 overflow-auto font-mono text-xs text-emerald-400 select-all whitespace-pre-wrap">
-                        <pre><code id="code-output">Your structural application script framework displays here after code gen loops execute.</code></pre>
+                    <div id="code-container" class="hidden w-full h-full bg-slate-950 p-4 overflow-auto font-mono text-xs text-emerald-400 select-all whitespace-pre-wrap">
+                        <pre><code id="code-output">Workspace logic script layers empty...</code></pre>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="view-community" class="hidden space-y-6 py-4">
+        <section id="view-community" class="hidden space-y-6 py-4 max-w-5xl mx-auto w-full">
             <div>
-                <h2 class="text-2xl font-bold text-white">App Blueprint Blueprints</h2>
-                <p class="text-sm text-slate-400">Select pre-built engineering layout logic inputs directly into workspace environments.</p>
+                <h2 class="text-2xl font-bold text-white">Application Blueprints</h2>
+                <p class="text-sm text-slate-400">Spawn preconfigured instances into your project directory workspace.</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="community-grid">
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="community-grid"></div>
         </section>
 
     </main>
 
-    <footer class="border-t border-slate-900 bg-slate-950 px-6 py-4 text-center text-xs text-slate-600">
-        GenGame Studio Code Generator Sandbox. Powered by openrouter/free execution paths.
-    </footer>
-
     <script>
         let userApiKey = '';
+        let projects = [];
+        let currentProjectId = null;
 
-        const mockPresets = [
+        const blueprints = [
             {
                 title: "Nebula Core Clicker",
-                description: "An operational increment clicker game tracking score systems, auto-upgrades, floating indicators, and sleek cosmic styled components.",
-                prompt: "Create an addictive sci-fi space idle clicker game. Include a big glowy button to mine cosmic minerals. Implement dynamic upgrades like 'Automated Drones' and 'Quantum Drills' that purchase with minerals and increase minerals-per-second. Render floating points animations whenever the button is clicked. Style beautifully using Tailwind CSS with deep purples and neon cyan colors."
+                description: "Incremental idle game featuring structural resource state trackers and float values indicators.",
+                prompt: "Create an addictive space theme idle clicker game. Include a big glowing central planet to mine plasma minerals. Implement dynamic upgrades like 'Asteroid Harvesters' that increase plasma automatic accumulation metrics. Style with Tailwind CSS deep dark theme aesthetics."
             },
             {
-                title: "Meteor Crash Avoidance 2D",
-                description: "A canvas loop simulation game requiring reflex keyboard actions and state management rules.",
-                prompt: "Build an interactive 2D arcade evasion game rendered directly inside an HTML5 <canvas> element. The player controls a green ship block using mouse movement or arrow keys, dodging falling red blocks. Implement a running timer score metric system, life points, and escalating speed variables over elapsed time limits. Provide game over screens with immediate reboot buttons."
+                title: "Arcade Block Evasion",
+                description: "2D reflex mechanics sandbox loop utilizing standalone frame canvas graphics.",
+                prompt: "Build an interactive 2D physics block evasion simulator game using an HTML5 <canvas> container viewport module. The player guides a block using arrow keys to slip past falling red debris. Include visible running tickers tracking score achievements."
             },
             {
-                title: "Cyberpunk Terminal Quest",
-                description: "An advanced responsive branching pathway text-scenario system with data storage logs.",
-                prompt: "Design a terminal choice-driven interactive adventure framework. The UI must simulate an green monochrome CRT command line with animated scanning text lines. The player accesses data gigs, handles credit scores, and hacks system firewalls by selecting functional interactive options. Make sure options update variable displays globally dynamically."
+                title: "Cyber Command Terminal",
+                description: "Monochrome choice node text matrix framework featuring active state logic parameters.",
+                prompt: "Design a simulated retro cyber text game command terminal. The entire panel runs on a styled dark-green layout framework. The character manages power metrics and chooses dynamic branching options to navigate safely."
             }
         ];
 
@@ -154,11 +182,13 @@
             if(savedKey) {
                 userApiKey = savedKey;
                 updateAuthStatus(true);
+                initProjectDatabase();
                 switchView('creator');
             } else {
                 switchView('landing');
             }
             renderPresets();
+            checkIncomingShareLink();
         });
 
         function switchView(viewName) {
@@ -177,13 +207,40 @@
             if (tab === 'preview') {
                 preview.classList.remove('hidden');
                 codeContainer.classList.add('hidden');
-                previewBtn.className = "text-xs px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition";
-                codeBtn.className = "text-xs px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition";
+                previewBtn.className = "text-[11px] px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition";
+                codeBtn.className = "text-[11px] px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition";
             } else {
                 preview.classList.add('hidden');
                 codeContainer.classList.remove('hidden');
-                previewBtn.className = "text-xs px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition";
-                codeBtn.className = "text-xs px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition";
+                previewBtn.className = "text-[11px] px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition";
+                codeBtn.className = "text-[11px] px-3 py-1 rounded-md font-medium text-white bg-indigo-600 transition";
+            }
+        }
+
+        // INTERACTIVE PANEL CONTROL BUTTON ROUTING
+        function controlAction(action) {
+            const previewFrame = document.getElementById('game-preview');
+            const shroud = document.getElementById('pause-shroud');
+            const consoleStatus = document.getElementById('console-status');
+
+            if (action === 'start') {
+                shroud.classList.add('hidden');
+                // Reload current structural system mapping profile
+                const activeProj = projects.find(p => p.id === currentProjectId);
+                if (activeProj && activeProj.code) {
+                    previewFrame.srcdoc = activeProj.code;
+                }
+                consoleStatus.innerText = "Runtime Running";
+                consoleStatus.className = "text-[10px] font-mono text-emerald-400 uppercase tracking-widest";
+            } else if (action === 'pause') {
+                shroud.classList.remove('hidden');
+                consoleStatus.innerText = "Execution Halted";
+                consoleStatus.className = "text-[10px] font-mono text-amber-400 uppercase tracking-widest";
+            } else if (action === 'stop') {
+                shroud.classList.add('hidden');
+                previewFrame.srcdoc = "<body style='background:#020617;color:#f43f5e;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-size:12px;'><div>Sandbox engine runtime terminated manually. Click green to restart core.</div></body>";
+                consoleStatus.innerText = "Engine Stopped";
+                consoleStatus.className = "text-[10px] font-mono text-rose-500 uppercase tracking-widest";
             }
         }
 
@@ -209,12 +266,13 @@
         function saveAPIKey() {
             const val = document.getElementById('api-key-input').value.trim();
             if(!val.startsWith('sk-or-')) {
-                alert('Provide standard validation formatted token codes.');
+                alert('Input standard OpenRouter API credentials token keys mapping values paths.');
                 return;
             }
             userApiKey = val;
             localStorage.setItem('openrouter_key', val);
             updateAuthStatus(true);
+            initProjectDatabase();
             switchView('creator');
         }
 
@@ -225,87 +283,290 @@
             switchView('landing');
         }
 
-        function loadPreset(idx) {
-            const choice = mockPresets[idx];
-            document.getElementById('game-prompt').value = choice.prompt;
+        // CHAT MEMORY / MULTI PROJECT CONTROLLERS
+        function initProjectDatabase() {
+            const stored = localStorage.getItem('gengame_history_projects');
+            if(stored) {
+                try { projects = JSON.parse(stored); } catch(e) { projects = []; }
+            }
+            
+            if(projects.length === 0) {
+                createNewProject("Dynamic Dev Matrix");
+            } else {
+                currentProjectId = projects[0].id;
+                renderProjectList();
+                loadProjectIntoWorkspace(currentProjectId);
+            }
+        }
+
+        function createNewProject(customTitle = '', historyArray = null, customModel = '', customCode = '') {
+            const id = 'proj_' + Date.now() + Math.floor(Math.random()*1000);
+            const newProj = {
+                id: id,
+                title: customTitle || `Sandbox Workspace #${projects.length + 1}`,
+                // Chat history keeps records intact for iterative updates instead of clean wipes
+                history: historyArray || [],
+                model: customModel || 'openrouter/free',
+                code: customCode || ''
+            };
+            projects.unshift(newProj);
+            currentProjectId = id;
+            syncProjectsToStorage();
+            renderProjectList();
+            loadProjectIntoWorkspace(id);
             switchView('creator');
+        }
+
+        function syncProjectsToStorage() {
+            localStorage.setItem('gengame_history_projects', JSON.stringify(projects));
+        }
+
+        function saveCurrentProjectState() {
+            if(!currentProjectId) return;
+            const target = projects.find(p => p.id === currentProjectId);
+            if(target) {
+                target.model = document.getElementById('game-model').value;
+                target.code = document.getElementById('code-output').textContent;
+                syncProjectsToStorage();
+            }
+        }
+
+        function loadProjectIntoWorkspace(id) {
+            currentProjectId = id;
+            const target = projects.find(p => p.id === currentProjectId);
+            if(!target) return;
+
+            document.getElementById('game-model').value = target.model;
+            document.getElementById('code-output').textContent = target.code || "Code script layer empty...";
+            
+            const previewFrame = document.getElementById('game-preview');
+            if(target.code) {
+                previewFrame.srcdoc = target.code;
+            } else {
+                previewFrame.srcdoc = "<body style='background:#020617;color:#475569;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-size:12px;'><div>No application logic deployed yet. Speak to the engine chat to begin processing code blocks.</div></body>";
+            }
+
+            renderProjectList();
+            renderChatHistoryUI(target.history);
+            document.getElementById('pause-shroud').classList.add('hidden');
+        }
+
+        function renderChatHistoryUI(chatHistory) {
+            const logContainer = document.getElementById('chat-history-log');
+            if(!chatHistory || chatHistory.length === 0) {
+                logContainer.innerHTML = `<div class="text-slate-500 italic">No instruction history logged yet. Type your initialization prompt below...</div>`;
+                return;
+            }
+
+            logContainer.innerHTML = chatHistory.map(msg => {
+                if(msg.role === 'system') return '';
+                const isUser = msg.role === 'user';
+                return `
+                    <div class="p-2 rounded-xl flex flex-col space-y-1 ${isUser ? 'bg-indigo-950/40 border border-indigo-800/30' : 'bg-slate-900 border border-slate-800'}">
+                        <span class="text-[9px] font-mono tracking-widest uppercase font-bold ${isUser ? 'text-indigo-400' : 'text-purple-400'}">${isUser ? 'User Request' : 'Engine System Update Response'}</span>
+                        <p class="text-[11px] leading-relaxed text-slate-300 break-words">${escapeHTML(msg.content)}</p>
+                    </div>
+                `;
+            }).join('');
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function escapeHTML(str) {
+            // Keep preview clean inside prompt logs display tabs panels
+            if(str.length > 300 && str.includes('<!DOCTYPE html>')) {
+                return "[Full internal operational source file rewrite completed successfully code layers updated]";
+            }
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function renameProject(id, e) {
+            e.stopPropagation();
+            const target = projects.find(p => p.id === id);
+            if(!target) return;
+            const nextName = prompt("Enter replacement workspace name identity:", target.title);
+            if(nextName && nextName.trim()) {
+                target.title = nextName.trim();
+                syncProjectsToStorage();
+                renderProjectList();
+            }
+        }
+
+        function deleteProject(id, e) {
+            e.stopPropagation();
+            if(projects.length <= 1) {
+                alert("Keep at least one dynamic sandbox directory container array slot active.");
+                return;
+            }
+            if(confirm("Confirm removal of project history file layout?")) {
+                projects = projects.filter(p => p.id !== id);
+                if(currentProjectId === id) currentProjectId = projects[0].id;
+                syncProjectsToStorage();
+                renderProjectList();
+                loadProjectIntoWorkspace(currentProjectId);
+            }
+        }
+
+        function clearAllProjectsConfirm() {
+            if(confirm("Wipe entire local variable project database records array structures permanently?")) {
+                localStorage.removeItem('gengame_history_projects');
+                projects = [];
+                initProjectDatabase();
+            }
+        }
+
+        function renderProjectList() {
+            const listEl = document.getElementById('project-list');
+            listEl.innerHTML = projects.map(p => {
+                const isActive = p.id === currentProjectId;
+                return `
+                    <div onclick="loadProjectIntoWorkspace('${p.id}')" class="group flex flex-col justify-between p-2.5 rounded-xl border transition cursor-pointer text-left ${isActive ? 'bg-indigo-600/10 border-indigo-500/50 text-white' : 'bg-slate-950 border-slate-800/80 hover:border-slate-700 text-slate-300'}">
+                        <div class="flex items-center justify-between w-full">
+                            <span class="text-xs font-semibold truncate max-w-[130px]">${p.title}</span>
+                            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                                <button onclick="shareLinkToProject('${p.id}', event)" class="p-1 rounded hover:bg-slate-800 text-[10px] text-indigo-400 font-bold">Link</button>
+                                <button onclick="renameProject('${p.id}', event)" class="p-1 rounded hover:bg-slate-800 text-[10px] text-slate-400">✎</button>
+                                <button onclick="deleteProject('${p.id}', event)" class="p-1 rounded hover:bg-slate-800 text-[10px] text-rose-400">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // COMPRESSION SHARE ENGINE PARSER LOGIC
+        function shareLinkToProject(id, event) {
+            if(event) event.stopPropagation();
+            const target = projects.find(p => p.id === id);
+            if(!target) return;
+
+            const dataPackage = { t: target.title, h: target.history, m: target.model, c: target.code };
+            try {
+                const rawJson = JSON.stringify(dataPackage);
+                const encodedMatrix = btoa(encodeURIComponent(rawJson).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+                const outboundShareLink = `${window.location.origin}${window.location.pathname}?spawn=${encodedMatrix}`;
+
+                navigator.clipboard.writeText(outboundShareLink).then(() => {
+                    alert("Share link cloned to your clipboard! Sending this URL to friends allows them to completely load your full chat history logs and code build arrays inside their client window.");
+                }).catch(() => {
+                    prompt("Manual copy tracking connection parameter link:", outboundShareLink);
+                });
+            } catch(err) { alert("Conversion failed."); }
+        }
+
+        function checkIncomingShareLink() {
+            const URLParameters = new URLSearchParams(window.location.search);
+            const rawSpawnMatrix = URLParameters.get('spawn');
+            if(rawSpawnMatrix) {
+                try {
+                    const parsedJsonString = decodeURIComponent(atob(rawSpawnMatrix).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                    const manifest = JSON.parse(parsedJsonString);
+
+                    if(userApiKey) {
+                        createNewProject(manifest.t, manifest.h, manifest.m, manifest.c);
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        alert(`Successfully restored dynamic shared project matrix component configuration: ${manifest.t}`);
+                    } else {
+                        alert("Shared payload configuration detected. Authenticate your API configuration access details profile layer first to mount files.");
+                    }
+                } catch(err) { console.error("String package read failure:", err); }
+            }
+        }
+
+        function loadPreset(idx) {
+            const choice = blueprints[idx];
+            createNewProject(`Blueprint: ${choice.title}`, [{ role: 'user', content: `Base configuration layout blueprint requested: ${choice.prompt}` }]);
         }
 
         function renderPresets() {
             const grid = document.getElementById('community-grid');
-            grid.innerHTML = mockPresets.map((p, idx) => `
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex flex-col justify-between space-y-4">
-                    <div class="space-y-2">
-                        <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Application Template</span>
-                        <h3 class="text-base font-bold text-slate-100">${p.title}</h3>
-                        <p class="text-xs text-slate-400">${p.description}</p>
+            grid.innerHTML = blueprints.map((p, idx) => `
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col justify-between space-y-4">
+                    <div class="space-y-1">
+                        <span class="text-[9px] font-mono tracking-wider px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Preset Boilerplate</span>
+                        <h3 class="text-sm font-bold text-slate-100">${p.title}</h3>
+                        <p class="text-[11px] text-slate-400 leading-normal">${p.description}</p>
                     </div>
                     <button onclick="loadPreset(${idx})" class="w-full bg-slate-950 hover:bg-indigo-600 text-slate-300 hover:text-white border border-slate-800 hover:border-indigo-500 transition font-medium py-2 rounded-lg text-xs">
-                        Inject Settings Prompt
+                        Instantiate Base Project Template
                     </button>
                 </div>
             `).join('');
         }
 
-        // SYNTHESIS COMPILER CONTROLLER
-        async function generateGameCode() {
-            const concept = document.getElementById('game-prompt').value.trim();
-            const model = document.getElementById('game-model').value;
+        // ITERATIVE CHAT COMPILER CONTROLLER
+        async function submitChatPrompt(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('chat-input-box');
+            const userMsg = inputEl.value.trim();
+            if(!userMsg) return;
 
-            if(!concept) return alert('Supply deployment conditions in configuration box first.');
-            if(!userApiKey) return switchView('landing');
+            if(!userApiKey) {
+                switchView('landing');
+                return;
+            }
+
+            const targetProj = projects.find(p => p.id === currentProjectId);
+            if(!targetProj) return;
+
+            inputEl.value = '';
+            
+            // Push prompt parameters into localized data matrices tracking logs history sets
+            targetProj.history.push({ role: 'user', content: userMsg });
+            renderChatHistoryUI(targetProj.history);
 
             const previewFrame = document.getElementById('game-preview');
             const codeOutput = document.getElementById('code-output');
             const consoleStatus = document.getElementById('console-status');
-            const statusLight = document.getElementById('status-light');
             const compileBtn = document.getElementById('compile-btn');
 
-            // Set visual compiling state
-            consoleStatus.innerText = "COMPILING HTML METRIC CHANNELS...";
-            consoleStatus.className = "text-xs font-mono text-amber-400 uppercase tracking-widest";
-            statusLight.className = "w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse";
+            consoleStatus.innerText = "UPDATING CODE STRUCTURES...";
+            consoleStatus.className = "text-[10px] font-mono text-amber-400 uppercase tracking-widest";
             compileBtn.disabled = true;
-            compileBtn.innerText = "Synthesizing Source Matrix...";
+            compileBtn.innerText = "...";
 
-            const systemCommand = `You are a specialized code generation engine for interactive browser modules.
-Task: Write a completely standalone web page component matching the user description.
-Rules:
-1. Provide valid syntax containing document types, inline scripts, styles, and body tags.
-2. It must be highly aesthetic, interactive, dynamic, responsive, and error-free.
-3. You can utilize script tags loading external Tailwind modules like: <script src="https://cdn.tailwindcss.com"><\/script> if useful for formatting.
-4. Output exclusively code content wrapped inside a standard single block matching layout:
+            const systemInstruction = `You are an elite web application code compiler running iterative update cycles.
+Context: The user wants to modify an existing single-file web deployment component, rather than starting fresh.
+Current Code Base:
 \`\`\`html
-[Code content here]
+${targetProj.code || ''}
 \`\`\`
-No conversational chatter, markdown descriptions, or introductions. Only the requested clean code matrix block.`;
+
+Rules:
+1. Review the previous text conversation logs history and apply modifications instructed by user prompts.
+2. Maintain all existing visual styles, state logs values, or features unless directly commanded to rewrite or discard them.
+3. Your output must return the entire updated version of the functional code matrix wrapped inside a single standard block element layout:
+\`\`\`html
+[Insert the fully complete updated standalone code page here containing full modifications]
+\`\`\`
+4. Do not prefix with text chat explanation channels. Write absolute zero conversations outside code block tags parameters wrappers.`;
+
+            // Prepare absolute payload arrays combining base rules prompts metrics parameters sets structures
+            const apiMessagesPayload = [
+                { role: 'system', content: systemInstruction },
+                ...targetProj.history.slice(-6) // Keeps context footprint clean while referencing memory branches
+            ];
 
             try {
-                const call = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                const request = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Authorization": `Bearer ${userApiKey}`,
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model: model,
-                        messages: [
-                            { role: "system", content: systemCommand },
-                            { role: "user", content: `Create this app now: ${concept}` }
-                        ]
+                        model: targetProj.model,
+                        messages: apiMessagesPayload
                     })
                 });
 
-                const parser = await call.json();
+                const dataset = await request.json();
 
-                if(parser.choices && parser.choices[0]) {
-                    let textResult = parser.choices[0].message.content;
-
-                    // Extractor Logic regex
+                if(dataset.choices && dataset.choices[0]) {
+                    let textResult = dataset.choices[0].message.content;
                     let exactCode = textResult;
+
                     const regex = /```html([\s\S]*?)```/;
                     const checkMatch = textResult.match(regex);
-                    
                     if(checkMatch) {
                         exactCode = checkMatch[1].trim();
                     } else {
@@ -314,27 +575,29 @@ No conversational chatter, markdown descriptions, or introductions. Only the req
                         if(genericMatch) exactCode = genericMatch[1].trim();
                     }
 
-                    // Update UI views
+                    // Save values back into dataset
+                    targetProj.code = exactCode;
+                    targetProj.history.push({ role: 'assistant', content: "Codebase updated successfully matching deployment metrics parameters instructions." });
+                    
                     codeOutput.textContent = exactCode;
                     previewFrame.srcdoc = exactCode;
 
-                    consoleStatus.innerText = "SANDBOX DEPLOYED LIVE";
-                    consoleStatus.className = "text-xs font-mono text-emerald-400 uppercase tracking-widest";
-                    statusLight.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]";
+                    consoleStatus.innerText = "REVISION LIVE DEPLOYED";
+                    consoleStatus.className = "text-[10px] font-mono text-emerald-400 uppercase tracking-widest";
                     switchTab('preview');
+                    syncProjectsToStorage();
+                    renderChatHistoryUI(targetProj.history);
                 } else {
-                    throw new Error(parser.error?.message || "Invalid payload arrays retrieved from model interface.");
+                    throw new Error(dataset.error?.message || "Invalid array structures returned.");
                 }
-
-            } catch(e) {
-                console.error(e);
-                consoleStatus.innerText = "CORE CODE INTERRUPT";
-                consoleStatus.className = "text-xs font-mono text-red-500 uppercase tracking-widest";
-                statusLight.className = "w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]";
-                alert("Compilation failed to process: " + e.message);
+            } catch(err) {
+                console.error(err);
+                consoleStatus.innerText = "PROCESS INTEGRATION FAULT";
+                consoleStatus.className = "text-[10px] font-mono text-rose-500 uppercase tracking-widest";
+                alert("Compilation failure: " + err.message);
             } finally {
                 compileBtn.disabled = false;
-                compileBtn.innerText = "Compile & Run Game";
+                compileBtn.innerText = "Send";
             }
         }
     </script>
