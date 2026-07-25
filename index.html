@@ -46,8 +46,9 @@
             width: 250px;
             padding: 10px 15px;
             font-size: 16px;
-            border: none;
-            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* Made it a sharp rectangle by removing the border-radius */
+            border-radius: 0px; 
             /* Grey and slightly transparent background */
             background-color: rgba(128, 128, 128, 0.4); 
             color: #ffffff;
@@ -58,6 +59,7 @@
         /* Subtle glow effect when clicking into the search bar */
         .search-bar:focus {
             background-color: rgba(150, 150, 150, 0.6);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
         /* Styling for the placeholder text color */
@@ -69,7 +71,7 @@
 <body>
 
     <div class="search-container">
-        <input type="text" class="search-bar" placeholder="Search or ask AI...">
+        <input type="text" class="search-bar" placeholder="search games...">
     </div>
 
     <div class="bg-container">
