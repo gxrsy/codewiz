@@ -12,27 +12,69 @@
             height: 100%;
             overflow: hidden;
             background-color: #000;
+            position: relative;
+        }
+
+        /* Container to center and handle the background image scaling */
+        .bg-container {
+            width: 100%;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
         .fullscreen-bg {
             width: 100%;
             height: 100%;
-            /* Changed to 'cover' and zoomed in slightly to crop out the built-in borders */
             object-fit: cover; 
             transform: scale(1.15); 
             display: block;
-            
-            /* Keeps your brightness setting */
             filter: brightness(0.5); 
+        }
+
+        /* Top-left search bar overlay */
+        .search-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        .search-bar {
+            width: 250px;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            /* Grey and slightly transparent background */
+            background-color: rgba(128, 128, 128, 0.4); 
+            color: #ffffff;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Subtle glow effect when clicking into the search bar */
+        .search-bar:focus {
+            background-color: rgba(150, 150, 150, 0.6);
+        }
+
+        /* Styling for the placeholder text color */
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.7);
         }
     </style>
 </head>
 <body>
 
-    <img src="back.png" alt="Background Image" class="fullscreen-bg">
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="Search or ask AI...">
+    </div>
+
+    <div class="bg-container">
+        <img src="back.png" alt="Background Image" class="fullscreen-bg">
+    </div>
 
 </body>
 </html>
