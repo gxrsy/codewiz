@@ -14,6 +14,8 @@
             background-color: #000;
             position: relative;
             font-family: Arial, sans-serif;
+            /* Prevents users from selecting text/elements accidentally */
+            user-select: none; 
         }
 
         /* Background Image Setup */
@@ -33,6 +35,8 @@
             transform: scale(1.15); 
             display: block;
             filter: brightness(0.5); 
+            /* Disable native browser image dragging */
+            pointer-events: none; 
         }
 
         /* Top-left search bar */
@@ -64,7 +68,7 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
-        /* Top-right Sign In / Account UI */
+        /* Top-right UI when logged in */
         .auth-container {
             position: absolute;
             top: 20px;
@@ -86,35 +90,10 @@
             background-color: rgba(150, 150, 150, 0.6);
         }
 
-        /* Hidden class for toggling states */
         .hidden {
             display: none !important;
         }
 
-        /* Sign-In Dropdown Form */
-        .login-box {
-            position: absolute;
-            top: 45px;
-            right: 0;
-            background-color: rgba(40, 40, 40, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            width: 220px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
-        }
-
-        .login-box input {
-            padding: 8px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            outline: none;
-        }
-
-        /* User Profile View (When logged in) */
         .user-profile {
             display: flex;
             align-items: center;
@@ -123,6 +102,51 @@
             padding: 5px 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
+        }
+
+        /* Centered Rectangle Login Box */
+        .login-box-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            background-color: rgba(40, 40, 40, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0px 4px 25px rgba(0,0,0,0.7);
+        }
+
+        .login-box-center input {
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            outline: none;
+            font-size: 14px;
+        }
+
+        /* Bottom sign up footer inside the center box */
+        .signup-footer {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .signup-link {
+            color: #4da6ff;
+            text-decoration: none;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .signup-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -133,26 +157,27 @@
     </div>
 
     <div class="auth-container">
-        <button id="signInBtn" class="btn" onclick="toggleLoginBox()">Sign In</button>
-
-        <div id="loginBox" class="login-box hidden">
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button class="btn" onclick="handleLogin()">Login</button>
-        </div>
-
         <div id="userProfile" class="user-profile hidden">
             <span id="welcomeText">Hi, User</span>
             <button class="btn" style="padding: 5px 10px; font-size: 14px;" onclick="handleSignOut()">Sign Out</button>
         </div>
     </div>
 
+    <div id="loginBox" class="login-box-center">
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button class="btn" onclick="handleLogin()">Login</button>
+        
+        <div class="signup-footer">
+            don't have an account?<span class="signup-link" onclick="handleSignUpRedirect()">sign up</span>
+        </div>
+    </div>
+
     <div class="bg-container">
-        <img src="back.png" alt="Background Image" class="fullscreen-bg">
+        <img src="back.png" alt="Background Image" class="fullscreen-bg" draggable="false">
     </div>
 
     <script>
-        // Check local storage immediately when the page loads to see if they are logged in
         window.onload = function() {
             const savedUser = localStorage.getItem("loggedInUser");
             if (savedUser) {
@@ -160,47 +185,37 @@
             }
         };
 
-        // Open/close the login inputs dropdown
-        function toggleLoginBox() {
-            const loginBox = document.getElementById("loginBox");
-            loginBox.classList.toggle("hidden");
-        }
-
-        // Action when user clicks Login
         function handleLogin() {
             const user = document.getElementById("username").value.trim();
             const pass = document.getElementById("password").value.trim();
 
             if (user && pass) {
-                // Save login status to browser storage (stays until explicitly cleared)
                 localStorage.setItem("loggedInUser", user);
-                
                 showLoggedInState(user);
                 
-                // Clear fields and hide box
+                // Clear fields
                 document.getElementById("username").value = "";
                 document.getElementById("password").value = "";
-                document.getElementById("loginBox").classList.add("hidden");
             } else {
                 alert("Please fill out both fields.");
             }
         }
 
-        // Action when user clicks Sign Out
         function handleSignOut() {
-            // Remove the login cookie/token from browser storage
             localStorage.removeItem("loggedInUser");
-            
-            // Switch back UI elements
             document.getElementById("userProfile").classList.add("hidden");
-            document.getElementById("signInBtn").classList.remove("hidden");
+            document.getElementById("loginBox").classList.remove("hidden");
         }
 
-        // Helper to adjust the UI elements
         function showLoggedInState(username) {
-            document.getElementById("signInBtn").classList.add("hidden");
+            document.getElementById("loginBox").classList.add("hidden");
             document.getElementById("userProfile").classList.remove("hidden");
             document.getElementById("welcomeText").innerText = username;
+        }
+
+        function handleSignUpRedirect() {
+            alert("Redirecting to sign up process...");
+            // You can replace this alert with a window.location.href to link to a registration page later
         }
     </script>
 </body>
