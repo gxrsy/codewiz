@@ -41,9 +41,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // ==========================================
-        // CONFIGURATIONS & INITIAL SEED DATA
-        // ==========================================
         const INITIAL_GAMES = [
             { id: 1, title: "Neon Cyber Runner", creator: "AlexVortex", htmlSource: "<h1>Cyber Runner</h1><p>Static Preview Mode</p>", thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=400", tags: ["Action", "Sci-Fi"] },
             { id: 2, title: "Quantum Retro Brick", creator: "PixelKnight", htmlSource: "<h1>Brick Breaker</h1><p>Static Preview Mode</p>", thumbnail: "https://images.unsplash.com/photo-1612287230202-1bf1d85d1bdf?q=80&w=400", tags: ["Retro", "Arcade"] },
@@ -55,21 +52,23 @@
             { id: 'high', name: 'Nemotron Ultra (Flagship)', tier: 'HIGH', reqPremium: true, idStr: 'nvidia/nemotron-3-ultra-550b-a55b:free', desc: 'Intense state tracking loops.' }
         ];
 
-        // Helper component to easily inject Lucide icons in standalone mode
         function Icon({ name, size = 16, className = "" }) {
             useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
             return <i data-lucide={name} style={{ width: size, height: size }} className={`inline-block ${className}`}></i>;
         }
 
-        // ==========================================
-        // ROOT PLATFORM APPLICATION
-        // ==========================================
         function App() {
-            const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('wisp_user')) || null);
+            const [user, setUser] = useState(() => {
+                try {
+                    return JSON.parse(localStorage.getItem('wisp_v3_user')) || null;
+                } catch(e) { return null; }
+            });
             const [currentPage, setCurrentPage] = useState(user ? '/' : '/login');
             const [games, setGames] = useState(() => {
-                const saved = localStorage.getItem('wisp_games');
-                return saved ? JSON.parse(saved) : INITIAL_GAMES;
+                try {
+                    const saved = localStorage.getItem('wisp_v3_games');
+                    return saved ? JSON.parse(saved) : INITIAL_GAMES;
+                } catch(e) { return INITIAL_GAMES; }
             });
 
             // ----------------------------------------------------------------------
@@ -77,7 +76,6 @@
             // ----------------------------------------------------------------------
             const [apiKey] = useState('YOUR_OPENROUTER_API_KEY_HERE');
 
-            // Shared Workspace States to survive page swaps
             const [htmlSource, setHtmlSource] = useState(`<!DOCTYPE html>
 <html>
 <head>
@@ -97,10 +95,10 @@
                 { role: 'assistant', text: "Hey! I am your AI game developer. Tell me what kind of HTML5/JavaScript game you want to build. I will compile the entire app live on the right!" }
             ]);
 
-            useEffect(() => { localStorage.setItem('wisp_games', JSON.stringify(games)); }, [games]);
+            useEffect(() => { localStorage.setItem('wisp_v3_games', JSON.stringify(games)); }, [games]);
 
             const handleLogout = () => {
-                localStorage.removeItem('wisp_user');
+                localStorage.removeItem('wisp_v3_user');
                 setUser(null);
                 setCurrentPage('/login');
             };
@@ -108,7 +106,6 @@
             return (
                 <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between font-sans">
                     
-                    {/* GLOBAL TOP NAVIGATION HEADER */}
                     <nav className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
                         <div className="flex items-center space-x-3 cursor-pointer" onClick={() => user && setCurrentPage('/')}>
                             <div className="p-2 bg-indigo-600 rounded-xl text-white flex items-center justify-center font-bold">
@@ -132,7 +129,6 @@
                         )}
                     </nav>
 
-                    {/* ROUTER CONTENT BODY MODULE */}
                     <main className="flex-1 w-full flex flex-col overflow-hidden">
                         {currentPage === '/login' && <AuthPage setUser={setUser} setCurrentPage={setCurrentPage} />}
                         {user && currentPage === '/' && <FeedPage games={games} setCurrentPage={setCurrentPage} />}
@@ -150,7 +146,6 @@
                         )}
                     </main>
 
-                    {/* STATE METRICS SYSTEM FOOTER */}
                     <footer className="py-2.5 text-center text-[11px] text-slate-600 bg-slate-900 border-t border-slate-900 font-mono tracking-wider shrink-0">
                         WISP ENGINE MATRIX DEPLOYMENT CORE • ALL SYSTEM TIERS LOADED
                     </footer>
@@ -158,9 +153,6 @@
             );
         }
 
-        // ==========================================
-        // 1. ACCOUNT COMPONENT IDENTITY NODE (`/login`)
-        // ==========================================
         function AuthPage({ setUser, setCurrentPage }) {
             const [isSignup, setIsSignup] = useState(true);
             const [username, setUsername] = useState('');
@@ -171,7 +163,7 @@
                 e.preventDefault();
                 if (!username.trim() || !password.trim()) return;
                 const payload = { username, plan };
-                localStorage.setItem('wisp_user', JSON.stringify(payload));
+                localStorage.setItem('wisp_v3_user', JSON.stringify(payload));
                 setUser(payload);
                 setCurrentPage('/');
             };
@@ -214,9 +206,6 @@
             );
         }
 
-        // ==========================================
-        // 2. MAIN BROWSE DISCOVERY HUB PAGE (`/`)
-        // ==========================================
         function FeedPage({ games }) {
             return (
                 <div className="p-6 space-y-6 animate-fadeIn max-w-7xl w-full mx-auto">
@@ -228,7 +217,7 @@
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {games.map(game => (
+                        {games?.map(game => (
                             <div key={game.id} className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4 hover:border-slate-700 transition">
                                 <div className="space-y-3">
                                     <img src={game.thumbnail} className="w-full h-32 object-cover rounded-lg bg-slate-950 border border-slate-800" />
@@ -237,7 +226,7 @@
                                         <span className="text-[10px] text-slate-500 font-medium">Compiled by: {game.creator}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-1">
-                                        {game.tags.map((t, i) => (
+                                        {game.tags?.map((t, i) => (
                                             <span key={i} className="text-[9px] font-mono px-2 py-0.5 bg-slate-950 border border-slate-800 text-slate-400 rounded uppercase tracking-wider">
                                                 {t}
                                             </span>
@@ -254,30 +243,28 @@
             );
         }
 
-        // ==========================================
-        // 3. THE SPLIT-SCREEN WORKSPACE ENGINE SYSTEM (`/editor`)
-        // ==========================================
         function EditorPage({ htmlSource, setHtmlSource, chatHistory, setChatHistory, games, setGames, user, apiKey }) {
-            const [activeTab, setActiveTab] = useState('preview'); // 'preview' | 'source'
+            const [activeTab, setActiveTab] = useState('preview');
             const [currentModel, setCurrentModel] = useState(AI_TIERS[0]);
             const [promptInput, setPromptInput] = useState('');
             const [isCompiling, setIsCompiling] = useState(false);
             const [buildTitle, setBuildTitle] = useState('My AI Scaffold Application');
             const iframeRef = useRef(null);
 
-            // Dynamically flush internal iframe canvas container when code modifications hit hooks
             useEffect(() => {
                 if (activeTab === 'preview' && iframeRef.current) {
-                    const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
-                    doc.open();
-                    doc.write(htmlSource);
-                    doc.close();
+                    try {
+                        const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
+                        doc.open();
+                        doc.write(htmlSource);
+                        doc.close();
+                    } catch(e) { console.error(e); }
                 }
             }, [htmlSource, activeTab]);
 
             const handleModelChange = (model) => {
                 if (model.reqPremium && user.plan !== 'premium') {
-                    alert(`🚨 Locked Access Node Configuration! The ${model.tier} Tier processing layer is reserved for premium subscribers. Your current account profile is limited strictly to the LOW Tier.`);
+                    alert(`🚨 Locked Access Node Configuration! The ${model.tier} Tier processing layer requires a Premium Plan.`);
                     return;
                 }
                 setCurrentModel(model);
@@ -287,8 +274,8 @@
                 e.preventDefault();
                 if (!promptInput.trim()) return;
                 
-                if (apiKey === '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' || !apiKey) {
-                    alert("Handshake Failure: Please update the hardcoded apiKey variable context located inside the <script> block with a real OpenRouter API Key.");
+                if (apiKey === 'YOUR_OPENROUTER_API_KEY_HERE' || !apiKey) {
+                    alert("Handshake Failure: Remember to open the file and add your actual OpenRouter key inside the apiKey state string variable.");
                     return;
                 }
 
@@ -319,7 +306,6 @@
                     const data = await response.json();
                     let rawContent = data.choices?.[0]?.message?.content || "";
                     
-                    // Clean out standard markdown wrapper overrides if the model forcefully spits them out
                     rawContent = rawContent.replace(/^```html\n/, '').replace(/\n```$/, '').trim();
 
                     if (rawContent) {
@@ -345,16 +331,13 @@
                     tags: ["AI-Native", "HTML5"]
                 };
                 setGames([build, ...games]);
-                alert(`Success! "${buildTitle}" has been safely registered to LocalStorage array channels and the Browse Game feed.`);
+                alert(`Success! "${buildTitle}" has been safely registered.`);
             };
 
             return (
                 <div className="flex-1 w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden bg-slate-950 p-4 gap-4 max-h-[calc(100vh-120px)]">
                     
-                    {/* LEFT SIDE PANEL: AI TEXTING CHAT CONSOLE (5 COLS) */}
                     <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl flex flex-col justify-between overflow-hidden shadow-xl">
-                        
-                        {/* TIER ARRAY TABS HEADER */}
                         <div className="p-3 bg-slate-950/60 border-b border-slate-800 space-y-2">
                             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400">
                                 <span className="flex items-center gap-1"><Icon name="layers" size={12} className="text-indigo-400" /> Model Processing Plan Array</span>
@@ -376,7 +359,6 @@
                             </div>
                         </div>
 
-                        {/* STREAMING CHAT FLOW ELEMENT CONTAINER */}
                         <div className="flex-1 p-4 overflow-y-auto space-y-4 max-h-[350px] lg:max-h-full">
                             {chatHistory.map((msg, i) => (
                                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
@@ -394,7 +376,6 @@
                             )}
                         </div>
 
-                        {/* AI TEXTING FIELD INTERFACE */}
                         <form onSubmit={executeTextingEngine} className="p-3 bg-slate-950/60 border-t border-slate-800">
                             <div className="flex gap-2">
                                 <input 
@@ -411,10 +392,7 @@
                         </form>
                     </div>
 
-                    {/* RIGHT SIDE PANEL: PREVIEW HUB & RAW SOURCE DISPLAY SYSTEM (7 COLS) */}
                     <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl flex flex-col justify-between overflow-hidden shadow-xl">
-                        
-                        {/* CONTROL BAR CONTROLS HEADER */}
                         <div className="p-3 bg-slate-950/60 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
                             <div className="flex items-center space-x-2 w-full sm:w-auto">
                                 <input 
@@ -438,7 +416,6 @@
                             </button>
                         </div>
 
-                        {/* DISPLAY ENGINE CORE ELEMENT INTERACTIVE WORKSPACE */}
                         <div className="flex-1 bg-slate-950 overflow-hidden relative min-h-[350px]">
                             {activeTab === 'preview' ? (
                                 <iframe 
@@ -455,10 +432,9 @@
                             )}
                         </div>
 
-                        {/* CONTROL LOG TERMINAL LAYER */}
                         <div className="bg-slate-950 px-4 py-1.5 border-t border-slate-800/80 flex items-center justify-between text-[9px] text-slate-500 font-mono shrink-0">
-                            <span>Vercel Subpage Hub: /editor/workspace</span>
-                            <span className="text-emerald-500 font-bold">● Live Compilation Pipeline Sync</span>
+                            <span>Workspace: /editor/workspace</span>
+                            <span className="text-emerald-500 font-bold">● Synchronized</span>
                         </div>
                     </div>
 
@@ -466,7 +442,6 @@
             );
         }
 
-        // Render Application context roots
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
