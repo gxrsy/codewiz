@@ -3,646 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wisp.ai - Platform Hub</title>
+    <title>Wisp Blocks - AI Scratch Studio</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        /* Custom scrollbar matching dark slate layouts */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #020617;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.2s ease-out forwards; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen">
+<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-indigo-500/30">
 
     <div id="root"></div>
 
     <script type="text/babel">
-        // Deconstruct React Hooks for standard use
         const { useState, useEffect } = React;
 
-        // ==========================================
-        // CONFIGURATIONS & INITIAL SEED DATA
-        // ==========================================
-        const INITIAL_GAMES = [
-            { id: 1, title: "Neon Cyber Runner", creator: "AlexVortex", thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=400", tags: ["Action", "Sci-Fi"] },
-            { id: 2, title: "Quantum Chess", creator: "DrGrid", thumbnail: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?q=80&w=400", tags: ["Strategy", "Puzzle"] },
-            { id: 3, title: "Shadow Rogue Dungeon", creator: "PixelKnight", thumbnail: "https://images.unsplash.com/photo-1612287230202-1bf1d85d1bdf?q=80&w=400", tags: ["RPG", "Retro"] },
+        // Visual code action definitions
+        const SCRATCH_PALETTE = [
+            { id: "b1", type: "motion", text: "🐱 when game starts loop forever", color: "bg-amber-500" },
+            { id: "b2", type: "motion", text: "🏃 move sprite forward 10 steps", color: "bg-blue-500" },
+            { id: "b3", type: "motion", text: "🔄 turn clockwise 15 degrees", color: "bg-blue-600" },
+            { id: "b4", type: "looks", text: "🎨 change background color to random", color: "bg-purple-500" },
+            { id: "b5", type: "sound", text: "🎵 play electronic synth blast", color: "bg-fuchsia-500" },
+            { id: "b6", type: "control", text: "⏱️ wait 1 second before repeat", color: "bg-orange-500" }
         ];
 
-        const AI_MODELS = [
-            { id: 'low-1', name: 'Llama 3 8B (Fast)', tier: 'LOW', desc: 'Instant responses, ideal for quick boilerplate.' },
-            { id: 'mid-1', name: 'Mistral 7B Instruct', tier: 'MID', desc: 'Balanced intelligence for game logic.' },
-            { id: 'high-1', name: 'DeepSeek Coder V2', tier: 'HIGH', desc: 'Advanced structure and state architecture.' },
-            { id: 'best-1', name: 'Claude 3.5 Sonnet', tier: 'BEST', desc: 'Flagship tier. Masterclass complex mechanics.' },
+        const AI_TIERS = [
+            { id: 'low', name: 'Llama 3.2 (Free Tier)', tier: 'LOW', reqPremium: false, idStr: 'meta-llama/llama-3.2-3b-instruct:free' },
+            { id: 'mid', name: 'Laguna M.1 (Pro Coding)', tier: 'MID', reqPremium: true, idStr: 'poolside/laguna-m.1:free' },
+            { id: 'high', name: 'Nemotron Ultra (Orchestration)', tier: 'HIGH', reqPremium: true, idStr: 'nvidia/nemotron-3-ultra-550b-a55b:free' }
         ];
 
-        const THEMES = {
-            'classic-dark': { bg: 'bg-slate-950', panel: 'bg-slate-900', border: 'border-slate-800', text: 'text-slate-100', accent: 'bg-indigo-600', hoverAccent: 'hover:bg-indigo-500', textAccent: 'text-indigo-400' },
-            'cyberpunk': { bg: 'bg-neutral-950', panel: 'bg-neutral-950', border: 'border-yellow-500/40', text: 'text-yellow-400', accent: 'bg-fuchsia-700', hoverAccent: 'hover:bg-fuchsia-600', textAccent: 'text-fuchsia-400' },
-            'oled-black': { bg: 'bg-black', panel: 'bg-zinc-950', border: 'border-zinc-800', text: 'text-zinc-100', accent: 'bg-emerald-600', hoverAccent: 'hover:bg-emerald-500', textAccent: 'text-emerald-400' }
-        };
-
-        // Helper component to easily inject Lucide icons in standalone mode
-        function Icon({ name, size = 16, className = "", fill = "none" }) {
-            useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
-            }, [name]);
-            return <i data-lucide={name} style={{ width: size, height: size }} className={`inline-block ${className}`} fill={fill}></i>;
+        function Icon({ name, size = 16, className = "" }) {
+            useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={`inline-block ${className}`}></i>;
         }
 
-        // ==========================================
-        // ROOT PLATFORM ROUTER APPLICATION
-        // ==========================================
         function App() {
-            const [currentPage, setCurrentPage] = useState('/'); // '/' | '/editor' | '/dashboard' | '/login'
-            const [user, setUser] = useState({ username: 'CreatorPro', loggedIn: true });
-            const [credits, setCredits] = useState(250);
-            const [games, setGames] = useState(INITIAL_GAMES);
-            const [homeTheme, setHomeTheme] = useState('classic-dark');
-            const [editorTheme, setEditorTheme] = useState('classic-dark');
-            const [showSettings, setShowSettings] = useState(false);
+            const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('wisp_user')) || null);
+            const [currentPage, setCurrentPage] = useState(user ? '/' : '/login');
+            const [apiKey, setApiKey] = useState('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');
+            
+            const [games, setGames] = useState(() => {
+                const saved = localStorage.getItem('wisp_games');
+                return saved ? JSON.parse(saved) : [
+                    { id: 1, title: "Cyber Dodge Block", creator: "NinjaDev", blocks: ["b1", "b2"], thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=200" },
+                    { id: 2, title: "Synth Rhythm Clicker", creator: "PixelArtiste", blocks: ["b1", "b4", "b5"], thumbnail: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?q=80&w=200" }
+                ];
+            });
 
-            // Workspace layout persistence states
-            const [editorCode, setEditorCode] = useState(`// AI Generated Game Output\nconsole.log("Game Canvas Initialized successfully.");`);
-            const [editorPrompt, setEditorPrompt] = useState('');
-            const [selectedModel, setSelectedModel] = useState(AI_MODELS[2]);
-            const [chatHistory, setChatHistory] = useState([
-                { role: 'assistant', text: 'Welcome developer! I am your AI system engine. Pick a tier model below (all 100% free) and outline the core features of your game.' }
-            ]);
+            // Persist systems changes
+            useEffect(() => { localStorage.setItem('wisp_games', JSON.stringify(games)); }, [games]);
+            useEffect(() => { localStorage.setItem('wisp_api_key', apiKey); }, [apiKey]);
 
-            const activeTheme = currentPage === '/editor' ? THEMES[editorTheme] : THEMES[homeTheme];
-
-            // Trigger Lucide updates on router swaps
-            useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
-            }, [currentPage, showSettings]);
-
-            const handleNavigate = (page) => {
-                if (!user.loggedIn && (page === '/editor' || page === '/dashboard')) {
-                    setCurrentPage('/login');
-                } else {
-                    setCurrentPage(page);
-                }
+            const handleLogout = () => {
+                localStorage.removeItem('wisp_user');
+                setUser(null);
+                setCurrentPage('/login');
             };
 
             return (
-                <div className={`min-h-screen ${activeTheme.bg} ${activeTheme.text} transition-colors duration-300 flex flex-col justify-between font-sans`}>
-                    
-                    {/* TOP DEPLOYMENT CONTAINER NAVIGATION */}
-                    <nav className={`sticky top-0 z-40 flex items-center justify-between px-6 py-4 ${activeTheme.panel} border-b ${activeTheme.border}`}>
-                        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => handleNavigate('/')}>
-                            <div className="p-2 bg-gradient-to-tr from-indigo-500 to-fuchsia-500 rounded-xl text-white flex items-center justify-center">
-                                <Icon name="terminal" size={20} />
+                <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between font-sans">
+                    <nav className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => user && setCurrentPage('/')}>
+                            <div className="p-2 bg-amber-500 rounded-xl text-slate-950 flex items-center justify-center font-bold">
+                                <Icon name="layout-grid" size={20} />
                             </div>
-                            <span className="font-extrabold text-xl tracking-tight text-white">
-                                WISP<span className="text-indigo-500">.AI</span>
-                            </span>
+                            <span className="font-black text-lg tracking-tight">WISP<span className="text-amber-500">BLOCKS</span></span>
                         </div>
 
-                        <div className="flex items-center space-x-6">
-                            <button onClick={() => handleNavigate('/')} className="hover:text-indigo-400 transition font-medium text-sm">Browse</button>
-                            <button onClick={() => handleNavigate('/editor')} className="hover:text-indigo-400 transition font-medium text-sm flex items-center gap-1">
-                                <Icon name="sparkles" size={14} /> Workspace
-                            </button>
-                            
-                            {user.loggedIn && (
-                                <div className="flex items-center bg-slate-900 border border-slate-800 rounded-full px-3 py-1">
-                                    <Icon name="zap" size={12} className="text-yellow-400 mr-1.5" />
-                                    <span className="text-xs font-bold tracking-wider text-white">{credits} <span className="text-slate-400 text-[10px] font-normal">Credits</span></span>
+                        {user && (
+                            <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto justify-end text-xs">
+                                <div className="flex items-center bg-slate-950 border border-slate-800 rounded-lg px-2 py-1">
+                                    <Icon name="key" size={12} className="text-slate-500 mr-2" />
+                                    <input 
+                                        type="password" 
+                                        placeholder="Paste OpenRouter Key Here" 
+                                        value={apiKey} 
+                                        onChange={(e) => setApiKey(e.target.value)}
+                                        className="bg-transparent focus:outline-none w-36 text-slate-300"
+                                    />
                                 </div>
-                            )}
-
-                            {user.loggedIn ? (
-                                <div className="flex items-center space-x-3">
-                                    <button onClick={() => handleNavigate('/dashboard')} className="flex items-center space-x-2 text-xs bg-slate-900 hover:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-800 transition text-white">
-                                        <Icon name="user" size={14} />
-                                        <span>{user.username}</span>
-                                    </button>
-                                    <button onClick={() => setUser({ username: '', loggedIn: false })} className="text-slate-400 hover:text-red-400 transition flex items-center">
-                                        <Icon name="log-out" size={16} />
-                                    </button>
-                                </div>
-                            ) : (
-                                <button onClick={() => handleNavigate('/login')} className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg font-medium text-sm transition text-white">
-                                    Get Started
+                                <button onClick={() => setCurrentPage('/')} className="hover:text-amber-500 font-bold transition">Browse</button>
+                                <button onClick={() => setCurrentPage('/editor')} className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
+                                    <Icon name="plus" size={14} /> Create Studio
                                 </button>
-                            )}
-
-                            <button onClick={() => setShowSettings(!showSettings)} className="p-2 hover:bg-slate-800 rounded-lg transition text-slate-400 hover:text-white flex items-center">
-                                <Icon name="sliders" size={18} />
-                            </button>
-                        </div>
+                                <div className="flex items-center bg-slate-800 rounded-lg px-3 py-1.5 border border-slate-700">
+                                    <span className="font-mono text-slate-400 mr-2 uppercase tracking-wide text-[10px]">{user.plan}</span>
+                                    <span className="font-bold text-white">{user.username}</span>
+                                </div>
+                                <button onClick={handleLogout} className="text-slate-400 hover:text-red-400"><Icon name="log-out" size={16} /></button>
+                            </div>
+                        )}
                     </nav>
 
-                    {/* INTERFACE DRAWER PANEL OVERLAY (THEME SETTINGS) */}
-                    {showSettings && (
-                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-end">
-                            <div className="w-80 bg-slate-900 h-full p-6 border-l border-slate-800 shadow-2xl flex flex-col justify-between text-slate-100">
-                                <div>
-                                    <div className="flex items-center justify-between mb-8">
-                                        <h3 className="font-bold text-base text-white flex items-center gap-2">
-                                            <Icon name="sliders" size={16} /> UI Theme Matrix
-                                        </h3>
-                                        <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white text-xs">Close</button>
-                                    </div>
-
-                                    <div className="space-y-6">
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Home & Profile Theme</label>
-                                            <div className="grid grid-cols-1 gap-2">
-                                                {Object.keys(THEMES).map(tKey => (
-                                                    <button key={tKey} onClick={() => setHomeTheme(tKey)} className={`p-2 rounded-lg border text-left text-xs transition ${homeTheme === tKey ? 'border-indigo-500 bg-indigo-500/10 text-white' : 'border-slate-800 bg-slate-950/50 hover:bg-slate-800 text-slate-300'}`}>
-                                                        {tKey.replace('-', ' ').toUpperCase()}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Editor Workspace Theme</label>
-                                            <div className="grid grid-cols-1 gap-2">
-                                                {Object.keys(THEMES).map(tKey => (
-                                                    <button key={tKey} onClick={() => setEditorTheme(tKey)} className={`p-2 rounded-lg border text-left text-xs transition ${editorTheme === tKey ? 'border-indigo-500 bg-indigo-500/10 text-white' : 'border-slate-800 bg-slate-950/50 hover:bg-slate-800 text-slate-300'}`}>
-                                                        {tKey.replace('-', ' ').toUpperCase()}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="text-[10px] text-slate-500 border-t border-slate-800 pt-4">
-                                    Theme spaces track state configurations isolated by layout scopes.
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* WORKSPACE APP TARGET CONTAINER INJECTION */}
                     <main className="p-6 flex-1 max-w-7xl w-full mx-auto">
-                        {currentPage === '/' && <HomePage activeTheme={activeTheme} games={games} handleNavigate={handleNavigate} />}
-                        {currentPage === '/login' && <LoginPage setUser={setUser} setCredits={setCredits} handleNavigate={handleNavigate} />}
-                        {currentPage === '/dashboard' && <DashboardPage user={user} credits={credits} setCredits={setCredits} games={games} setGames={setGames} activeTheme={activeTheme} />}
-                        {currentPage === '/editor' && (
-                            <EditorPage 
-                                activeTheme={activeTheme} 
-                                selectedModel={selectedModel} 
-                                setSelectedModel={setSelectedModel}
-                                chatHistory={chatHistory}
-                                setChatHistory={setChatHistory}
-                                editorPrompt={editorPrompt}
-                                setEditorPrompt={setEditorPrompt}
-                                editorCode={editorCode}
-                                setEditorCode={setEditorCode}
-                                games={games}
-                                setGames={setGames}
-                                credits={credits}
-                                setCredits={setCredits}
-                                user={user}
-                            />
-                        )}
+                        {currentPage === '/login' && <AuthPage setUser={setUser} setCurrentPage={setCurrentPage} />}
+                        {user && currentPage === '/' && <FeedPage games={games} setCurrentPage={setCurrentPage} />}
+                        {user && currentPage === '/editor' && <EditorPage games={games} setGames={setGames} user={user} apiKey={apiKey} />}
                     </main>
 
-                    {/* SYSTEM ROOT FOOTER LAYER */}
-                    <footer className={`py-4 text-center text-xs text-slate-600 border-t ${activeTheme.border} ${activeTheme.panel}`}>
-                        Wisp Engine Console Matrix • All Tiers Operational
+                    <footer className="py-4 text-center text-xs text-slate-600 bg-slate-900/50 border-t border-slate-900">
+                        Scratch Engine Model Array Layout • Plan Limitations Active
                     </footer>
                 </div>
             );
         }
 
         // ==========================================
-        // 1. HOME DISCOVERY FEED INTERFACE (`/`)
+        // 1. SIMPLIFIED SIGNUP / LOGIN GATE
         // ==========================================
-        function HomePage({ activeTheme, games, handleNavigate }) {
-            const [searchQuery, setSearchQuery] = useState('');
-            
-            const filteredGames = games.filter(game => 
-                game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                game.creator.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                game.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-            );
+        function AuthPage({ setUser, setCurrentPage }) {
+            const [isSignup, setIsSignup] = useState(true);
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+            const [plan, setPlan] = useState('free');
 
-            return (
-                <div className="space-y-8 animate-fadeIn">
-                    <div className="text-center py-10 max-w-3xl mx-auto space-y-4">
-                        <span className="px-3 py-1 text-[10px] font-bold bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-full tracking-wider uppercase">
-                            ⚡ Edge Generation Framework
-                        </span>
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white">
-                            Compile Web Architectures <br />
-                            <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-yellow-400 bg-clip-text text-transparent">
-                                Instantly Via OpenRouter
-                            </span>
-                        </h1>
-                        <p className="text-slate-400 text-sm md:text-base max-w-xl mx-auto">
-                            Design micro-games directly from canvas layouts. Choose free computation clusters, run source previews, and publish directly to global feed trees.
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 backdrop-blur-md">
-                        <div className="relative w-full md:w-96">
-                            <div className="absolute left-3 top-2.5 text-slate-500 flex items-center"><Icon name="search" size={16} /></div>
-                            <input 
-                                type="text" 
-                                placeholder="Filter games by title, creator, mechanics..." 
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-                            {['All Systems', 'Action', 'RPG', 'Puzzle', 'Strategy'].map((tag, idx) => (
-                                <button key={idx} onClick={() => setSearchQuery(tag === 'All Systems' ? '' : tag)} class={`px-2.5 py-1 text-[10px] font-bold uppercase rounded tracking-wider border transition ${searchQuery === tag ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'}`}>
-                                    {tag}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div>
-                        <h2 className="text-base font-bold mb-4 flex items-center gap-2 text-white">
-                            <Icon name="globe" size={16} className="text-indigo-400" /> Platform Feed Modules
-                        </h2>
-                        {filteredGames.length === 0 ? (
-                            <div className="text-center py-12 border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
-                                No active builds matches found for context pattern: "{searchQuery}".
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {filteredGames.map((game) => (
-                                    <div key={game.id} className="group bg-slate-900/40 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition-all flex flex-col justify-between">
-                                        <div>
-                                            <div className="relative aspect-video w-full bg-slate-950 overflow-hidden">
-                                                <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80" />
-                                            </div>
-                                            <div className="p-4 space-y-2">
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    {game.tags.map((t, i) => (
-                                                        <span key={i} className="text-[9px] uppercase font-mono px-2 py-0.5 bg-slate-950 border border-slate-800 text-slate-400 rounded">
-                                                            {t}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                                <h3 className="font-bold text-base text-white group-hover:text-indigo-400 transition tracking-tight">{game.title}</h3>
-                                                <p className="text-[11px] text-slate-500">Node Creator: <span className="text-slate-300 font-medium">{game.creator}</span></p>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 pt-0">
-                                            <button onClick={() => alert(`Connecting virtual container for: ${game.title}`)} className="w-full bg-slate-950 border border-slate-800 hover:bg-indigo-600 hover:border-indigo-500 text-slate-300 hover:text-white py-1.5 rounded-lg text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5">
-                                                <Icon name="play" size={12} className="fill-current" /> EXECUTE RUNTIME CONTAINER
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-
-        // ==========================================
-        // 2. ACCOUNT NODE ACCESS SYSTEM (`/login`)
-        // ==========================================
-        function LoginPage({ setUser, setCredits, handleNavigate }) {
-            const [isSignup, setIsSignup] = useState(false);
-            const [formUser, setFormUser] = useState('');
-
-            const handleAuthSubmit = (e) => {
+            const handleSubmit = (e) => {
                 e.preventDefault();
-                if (!formUser.trim()) return;
-                setUser({ username: formUser, loggedIn: true });
-                setCredits(250); // Set initial seed credits allocation array
-                handleNavigate('/dashboard');
+                if (!username.trim() || !password.trim()) return;
+                
+                const payload = { username, plan };
+                localStorage.setItem('wisp_user', JSON.stringify(payload));
+                setUser(payload);
+                setCurrentPage('/');
             };
 
             return (
                 <div className="max-w-md mx-auto my-12 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6 animate-fadeIn">
-                    <div className="text-center space-y-2">
-                        <div className="inline-flex p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
-                            <Icon name="key" size={20} />
-                        </div>
-                        <h2 className="text-xl font-bold text-white tracking-tight">
-                            {isSignup ? 'Spawn New Developer Account' : 'Authenticate Console Identity'}
-                        </h2>
-                        <p className="text-xs text-slate-400">
-                            {isSignup ? 'Provisioning automatically tracks +250 execution credits.' : 'Input credentials to connect standard routing variables.'}
-                        </p>
+                    <div className="text-center space-y-1">
+                        <h2 className="text-xl font-black text-white">{isSignup ? 'Create Account' : 'Sign In'}</h2>
+                        <p className="text-xs text-slate-400">You must have an account node to save games and access workspace canvases.</p>
                     </div>
 
-                    <form onSubmit={handleAuthSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4 text-xs">
                         <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Unique Handle / Identity</label>
-                          <input type="text" required placeholder="e.g., MatrixWeaver" value={formUser} onChange={(e) => setFormUser(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition" />
+                            <label className="block text-slate-400 font-bold mb-1">Username</label>
+                            <input type="text" required placeholder="Pick a nickname" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500" />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Secure Password Node</label>
-                          <input type="password" required placeholder="••••••••" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition" />
+                            <label className="block text-slate-400 font-bold mb-1">Password</label>
+                            <input type="password" required placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500" />
                         </div>
-                        <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-xs font-bold tracking-wide transition shadow-lg">
-                            {isSignup ? 'GENERATE PIPELINE PRIVILEGES' : 'ESTABLISH LINK'}
+                        {isSignup && (
+                            <div>
+                                <label className="block text-slate-400 font-bold mb-1">Tier Tier Plan Selection</label>
+                                <select value={plan} onChange={(e) => setPlan(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none">
+                                    <option value="free">Standard Free Plan (LOW Tier AI Only)</option>
+                                    <option value="premium">Premium Pro Dev (Unlock All Tiers)</option>
+                                </select>
+                            </div>
+                        )}
+                        <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-lg text-xs font-bold transition uppercase tracking-wider">
+                            {isSignup ? 'Register New Space' : 'Connect Profile Engine'}
                         </button>
                     </form>
 
-                    <div className="text-center pt-2">
-                        <button onClick={() => setIsSignup(!isSignup)} className="text-[11px] text-slate-400 hover:text-indigo-400 transition">
-                            {isSignup ? 'Already verified? Access terminal link logs' : 'Need development clearance? Provision an account node'}
-                        </button>
-                    </div>
+                    <button onClick={() => setIsSignup(!isSignup)} className="w-full text-center text-[11px] text-slate-400 hover:text-amber-500 transition">
+                        {isSignup ? 'Already have an account? Log in' : 'Need an account? Sign up here'}
+                    </button>
                 </div>
             );
         }
 
         // ==========================================
-        // 3. STORAGE PROFILE & DIFFUSION LAYER (`/dashboard`)
+        // 2. DISCOVERY BROWSE FEED (`/`)
         // ==========================================
-        function DashboardPage({ user, credits, setCredits, games, setGames, activeTheme }) {
-            const [genPrompt, setGenPrompt] = useState('');
-            const [isGenerating, setIsGenerating] = useState(false);
-            const [generatedUrl, setGeneratedUrl] = useState('');
-
-            const userGames = games.filter(g => g.creator === user.username);
-
-            const handleGenerateThumbnail = (e) => {
-                e.preventDefault();
-                if (credits < 50) {
-                    alert("Insufficient credit loops! Generation requires minimum 50 units.");
-                    return;
-                }
-                if (!genPrompt.trim()) return;
-
-                setIsGenerating(true);
-                setTimeout(() => {
-                    setCredits(prev => prev - 50);
-                    // Dynamically map a visual payload matrix output placeholder
-                    setGeneratedUrl(`https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=400`);
-                    setIsGenerating(false);
-                }, 1500);
-            };
-
+        function FeedPage({ games }) {
             return (
                 <div className="space-y-6 animate-fadeIn">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 flex items-center justify-between">
-                            <div className="space-y-1">
-                                <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">Active Security Account</span>
-                                <h2 className="text-xl font-extrabold text-white">{user.username}</h2>
-                                <p className="text-[11px] text-slate-500">System State Hook status: <span className="text-emerald-400">Node Sync Complete</span></p>
-                            </div>
-                            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-center">
-                                <div className="text-yellow-400 mb-0.5"><Icon name="trophy" size={16} /></div>
-                                <span className="block text-lg font-black text-white">{userGames.length}</span>
-                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Packages</span>
-                            </div>
-                        </div>
-
-                        <div className="bg-gradient-to-br from-slate-900 to-indigo-950 border border-indigo-900/40 rounded-xl p-5 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold text-indigo-300 tracking-wider uppercase">Balance Node</span>
-                                <Icon name="zap" size={14} className="text-yellow-400" />
-                            </div>
-                            <div className="my-1">
-                                <span className="text-2xl font-black text-white tracking-tight">{credits}</span>
-                                <span className="text-slate-400 text-xs ml-1">vcr</span>
-                            </div>
-                            <button onClick={() => setCredits(c => c + 100)} className="w-full bg-indigo-600/20 hover:bg-indigo-600 border border-indigo-500/30 text-indigo-200 hover:text-white py-1 rounded text-[10px] font-bold tracking-wider transition">
-                                DISPATCH DEV DROP (+100)
-                            </button>
-                        </div>
+                    <div className="border-b border-slate-900 pb-4">
+                        <h2 className="text-lg font-black text-white flex items-center gap-2">
+                            <Icon name="globe" size={18} className="text-amber-500" /> Community Scratch Pipeline Feed
+                        </h2>
+                        <p className="text-xs text-slate-400 mt-1">Explore custom block sequences generated by platform accounts.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
-                            <div>
-                                <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
-                                    <Icon name="image" size={16} className="text-fuchsia-400" /> Image Asset Generator
-                                </h3>
-                                <p className="text-[11px] text-slate-400 mt-1">Generate dynamic game thumbnails at the cost of exactly 50 credits per execution payload.</p>
-                            </div>
-                            <hr className="border-slate-800" />
-                            <form onSubmit={handleGenerateThumbnail} className="space-y-3">
-                                <div>
-                                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Asset Model Configuration Prompt</label>
-                                    <textarea rows={3} placeholder="Isometric pixel game dungeon asset structure, high rendering spec..." value={genPrompt} onChange={(e) => setGenPrompt(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-fuchsia-500 transition resize-none" />
-                                </div>
-                                <div className="flex items-center justify-between text-[10px] text-slate-400 bg-slate-950 p-2 rounded border border-slate-800">
-                                    <span>Cost Profile:</span>
-                                    <span className="font-bold text-yellow-400">50 Credits</span>
-                                </div>
-                                <button type="submit" disabled={isGenerating || !genPrompt.trim()} className="w-full bg-fuchsia-600 hover:bg-fuchsia-500 disabled:bg-slate-800 disabled:text-slate-500 text-white py-1.5 rounded text-xs font-bold tracking-wider transition">
-                                    {isGenerating ? 'RUNNING STABLE DIFFUSION...' : 'EXECUTE DIFFUSION MODEL'}
-                                </button>
-                            </form>
-
-                            {generatedUrl && (
-                                <div className="mt-2 border border-slate-800 rounded-lg p-2 bg-slate-950 space-y-2 animate-fadeIn">
-                                    <span className="text-[9px] font-bold uppercase text-emerald-400 flex items-center gap-1">
-                                        <Icon name="check-circle" size={10} /> Compilation Completed
-                                    </span>
-                                    <img src={generatedUrl} className="w-full aspect-video object-cover rounded border border-slate-800" />
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-4">
-                            <h3 className="font-bold text-sm text-white mb-4 flex items-center gap-1.5">
-                                <Icon name="layout" size={16} className="text-indigo-400" /> Isolated Profile Sandboxes ({userGames.length})
-                            </h3>
-                            {userGames.length === 0 ? (
-                                <div className="text-center py-12 border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
-                                    No application builds pushed to global feed registry indexes yet.
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {userGames.map(game => (
-                                        <div key={game.id} className="bg-slate-950 border border-slate-800 p-2.5 rounded-lg flex items-center gap-3">
-                                            <img src={game.thumbnail} className="w-12 h-12 object-cover rounded border border-slate-800" />
-                                            <div>
-                                                <h4 className="font-bold text-xs text-white tracking-tight">{game.title}</h4>
-                                                <span className="inline-block text-[8px] uppercase font-mono px-1.5 py-0.2 bg-slate-955 border border-slate-800 rounded text-slate-400 mt-1">
-                                                    Pushed Live
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {games.map(game => (
+                            <div key={game.id} className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4">
+                                <div className="space-y-3">
+                                    <img src={game.thumbnail} className="w-full h-28 object-cover rounded-lg bg-slate-950" />
+                                    <div>
+                                        <h3 className="font-bold text-sm text-white">{game.title}</h3>
+                                        <span className="text-[10px] text-slate-500">By {game.creator}</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1">
+                                        {game.blocks.map((bId, i) => {
+                                            const match = SCRATCH_PALETTE.find(p => p.id === bId);
+                                            return match ? (
+                                                <span key={i} className={`text-[8px] font-bold px-1.5 py-0.5 rounded text-white ${match.color}`}>
+                                                    {match.text.split(' ')[0]}
                                                 </span>
-                                            </div>
-                                        </div>
-                                    ))}
+                                            ) : null;
+                                        })}
+                                    </div>
                                 </div>
-                            )}
-                        </div>
+                                <button onClick={() => alert(`Running code payload string array: ${JSON.stringify(game.blocks)}`)} className="w-full bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 py-1.5 rounded text-xs transition">
+                                    Run Block Architecture
+                                </button>
+                            </div>
+                        ))}
                     </div>
                 </div>
             );
         }
 
         // ==========================================
-        // 4. WORKSPACE ENGINE TERMINAL (`/editor`)
+        // 3. SCRATCH WORKSPACE & LOCKED MODEL ENGINE
         // ==========================================
-        function EditorPage({ 
-            activeTheme, selectedModel, setSelectedModel, chatHistory, setChatHistory,
-            editorPrompt, setEditorPrompt, editorCode, setEditorCode, games, setGames, user
-        }) {
-            const [activeTab, setActiveTab] = useState('preview');
-            const [isCompiling, setIsCompiling] = useState(false);
-            const [newGameTitle, setNewGameTitle] = useState('My AI Sandbox Build');
+        function EditorPage({ games, setGames, user, apiKey }) {
+            const [title, setTitle] = useState('New Code Matrix Block');
+            const [selectedBlocks, setSelectedBlocks] = useState([]);
+            const [currentModel, setCurrentModel] = useState(AI_TIERS[0]);
+            const [aiSuggestion, setAiSuggestion] = useState('');
+            const [loading, setLoading] = useState(false);
 
-            const handleSendPrompt = (e) => {
-                e.preventDefault();
-                if (!editorPrompt.trim()) return;
+            const addBlock = (id) => { setSelectedBlocks([...selectedBlocks, id]); };
+            const clearBlocks = () => { setSelectedBlocks([]); };
 
-                const userMsg = { role: 'user', text: editorPrompt };
-                setChatHistory(prev => [...prev, userMsg]);
-                setEditorPrompt('');
-                setIsCompiling(true);
-
-                setTimeout(() => {
-                    const generatedScaffold = `// Compiled via Wisp Engine Core using OpenRouter: ${selectedModel.name}\n// System Tier: ${selectedModel.tier} (0 Credit Cost Allocation Framework)\n\nfunction initializeGameSpace() {\n  const config = {\n    engineType: "Dynamic Render Canvas",\n    seedPrompt: "${editorPrompt.replace(/"/g, '\\"')}",\n    status: "READY"\n  };\n  console.log("Initialization Matrix complete.", config);\n}\n\ninitializeGameSpace();`;
-                    setEditorCode(generatedScaffold);
-                    setChatHistory(prev => [...prev, { 
-                        role: 'assistant', 
-                        text: `Engine logic structure processed via ${selectedModel.name} framework hooks. Output source blocks are compiled inside the code dashboard tab.` 
-                    }]);
-                    setIsCompiling(false);
-                }, 1200);
+            const handleModelSelect = (model) => {
+                if (model.reqPremium && user.plan !== 'premium') {
+                    alert(`🚨 Locked Access Node! The ${model.tier} Tier model requires a Premium Plan. Your free account is locked to the LOW Tier model.`);
+                    return;
+                }
+                setCurrentModel(model);
             };
 
-            const handlePublish = () => {
-                const newBuild = {
-                    id: games.length + 1,
-                    title: newGameTitle,
-                    creator: user.loggedIn ? user.username : 'AnonymousDev',
-                    thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400',
-                    tags: ['AI-Native', 'Sandbox']
+            const queryAiAssistance = async () => {
+                if (!apiKey) {
+                    alert("Please insert an active OpenRouter API Key in the upper control navigation field bar first.");
+                    return;
+                }
+                setLoading(true);
+                setAiSuggestion('Querying plan authorization arrays...');
+
+                const blockDescriptions = selectedBlocks.map(id => SCRATCH_PALETTE.find(p => p.id === id)?.text).join(', ');
+                
+                try {
+                    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${apiKey}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: currentModel.idStr,
+                            messages: [
+                                { role: "system", content: "You are a friendly Scratch programming assistant. Give a short, 2-sentence piece of feedback on the blocks provided." },
+                                { role: "user", content: `My Scratch block configuration stack contains: ${blockDescriptions || 'No blocks yet'}` }
+                            ]
+                        })
+                    });
+                    const data = await response.json();
+                    setAiSuggestion(data.choices?.[0]?.message?.content || 'Pipeline parsing error node.');
+                } catch (err) {
+                    setAiSuggestion('手 Connection Failure. Check key strings or rotation tier allocations.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const saveAndPublish = () => {
+                if (selectedBlocks.length === 0) return alert("Add blocks to your layout space before publishing.");
+                const record = {
+                    id: Date.now(),
+                    title,
+                    creator: user.username,
+                    blocks: selectedBlocks,
+                    thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200"
                 };
-                setGames([newBuild, ...games]);
-                alert(`Success! "${newGameTitle}" has been successfully appended to the main network feed discovery array.`);
+                setGames([record, ...games]);
+                alert("Game pushed successfully onto LocalStorage and Platform Feed Arrays!");
             };
 
             return (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-160px)] animate-fadeIn">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[500px] animate-fadeIn text-xs">
                     
-                    {/* CORE CONSOLE CHAT ELEMENT (5 COLS) */}
-                    <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl flex flex-col justify-between overflow-hidden">
-                        <div className="p-4 bg-slate-950/60 border-b border-slate-800/80 space-y-3">
-                            <div className="flex items-center justify-between">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                                    <Icon name="layers" size={12} className="text-indigo-400" /> OpenRouter Model Array
-                                </label>
-                                <span className="text-[9px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-1.5 py-0.2 rounded font-bold uppercase tracking-wider">
-                                    100% Free Tiers
-                                </span>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-2">
-                                {AI_MODELS.map(model => (
-                                    <button key={model.id} onClick={() => setSelectedModel(model)} className={`p-2 rounded-lg text-left border flex flex-col justify-between transition ${selectedModel.id === model.id ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                        <div className="flex items-center justify-between w-full">
-                                            <span className="font-bold text-[11px] text-white truncate max-w-[80px]">{model.name.split(' ')[0]}</span>
-                                            <span className="text-[8px] font-black px-1.5 py-0.2 bg-slate-950 border border-slate-800 rounded text-slate-400">{model.tier}</span>
-                                        </div>
-                                        <span className="text-[9px] text-slate-500 truncate w-full mt-1">{model.desc}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="flex-1 p-4 overflow-y-auto space-y-4 max-h-[350px]">
-                            {chatHistory.map((msg, i) => (
-                                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[85%] rounded-xl p-2.5 text-xs leading-relaxed ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-950 text-slate-300 border border-slate-800 rounded-bl-none'}`}>
-                                        {msg.text}
-                                    </div>
-                                </div>
-                            ))}
-                            {isCompiling && (
-                                <div className="flex justify-start">
-                                    <div className="bg-slate-950 text-slate-500 border border-slate-800 rounded-xl rounded-bl-none p-2.5 text-xs animate-pulse w-full">
-                                        Mapping parameters to OpenRouter model array...
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <form onSubmit={handleSendPrompt} className="p-3 bg-slate-950/60 border-t border-slate-800">
-                            <div className="flex gap-2">
-                                <input type="text" value={editorPrompt} onChange={(e) => setEditorPrompt(e.target.value)} placeholder={`Build with ${selectedModel.tier} Tier (Free)...`} className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition" />
-                                <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg transition flex items-center justify-center">
-                                    <Icon name="send" size={14} />
+                    {/* PALETTE COMPONENT BLOCK COLUMN (4 COLS) */}
+                    <div className="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
+                        <div className="font-bold text-white uppercase tracking-wider text-[10px] text-slate-400">Scratch Block Palette</div>
+                        <div className="space-y-2">
+                            {SCRATCH_PALETTE.map(block => (
+                                <button key={block.id} onClick={() => addBlock(block.id)} className={`w-full text-left p-2.5 rounded-lg text-white font-bold transition hover:scale-[1.01] ${block.color} flex items-center justify-between`}>
+                                    <span>{block.text}</span>
+                                    <Icon name="plus" size={12} />
                                 </button>
-                            </div>
-                        </form>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* INTERACTIVE COMPILATION PREVIEW GRID (7 COLS) */}
-                    <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl flex flex-col justify-between overflow-hidden">
-                        <div className="p-3 bg-slate-950/60 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <div className="flex items-center space-x-2 w-full sm:w-auto">
-                                <input type="text" value={newGameTitle} onChange={(e) => setNewGameTitle(e.target.value)} className="bg-slate-900 border border-slate-800 text-xs font-bold px-2.5 py-1.5 rounded text-white focus:outline-none focus:border-indigo-500 w-full sm:w-40" />
-                                <div className="flex border border-slate-800 rounded overflow-hidden shrink-0">
-                                    <button onClick={() => setActiveTab('preview')} className={`px-2.5 py-1.5 text-[11px] font-bold uppercase flex items-center gap-1 transition ${activeTab === 'preview' ? 'bg-slate-800 text-white' : 'bg-slate-950 text-slate-400'}`}>
-                                        Live Space
-                                    </button>
-                                    <button onClick={() => setActiveTab('code')} className={`px-2.5 py-1.5 text-[11px] font-bold uppercase flex items-center gap-1 transition ${activeTab === 'code' ? 'bg-slate-800 text-white' : 'bg-slate-950 text-slate-400'}`}>
-                                        Source
-                                    </button>
+                    {/* LIVE EDITING DRAW SPACE (4 COLS) */}
+                    <div className="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-slate-950 border border-slate-800 text-white font-bold p-1 px-2 rounded focus:outline-none" />
+                                <button onClick={clearBlocks} className="text-slate-500 hover:text-slate-300">Clear</button>
+                            </div>
+
+                            <div className="bg-slate-950 rounded-xl p-4 min-h-[300px] border border-slate-800 space-y-2">
+                                {selectedBlocks.length === 0 ? (
+                                    <div className="text-center text-slate-600 mt-12">Click blocks on the left to stack code paths together.</div>
+                                ) : (
+                                    selectedBlocks.map((bId, idx) => {
+                                        const match = SCRATCH_PALETTE.find(p => p.id === bId);
+                                        return (
+                                            <div key={idx} className={`p-2 rounded text-white font-bold ${match?.color} shadow-sm animate-fadeIn`}>
+                                                {match?.text}
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
+
+                        <button onClick={saveAndPublish} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-bold uppercase transition">
+                            Save & Publish Build Node
+                        </button>
+                    </div>
+
+                    {/* AI ASSISTANT PLAN CONSTRAINT ENGINE (4 COLS) */}
+                    <div className="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4">
+                        <div className="space-y-4">
+                            <div>
+                                <div className="font-bold text-white uppercase tracking-wider text-[10px] text-slate-400 mb-2">OpenRouter Model Tiers</div>
+                                <div className="space-y-1.5">
+                                    {AI_TIERS.map(m => (
+                                        <button key={m.id} onClick={() => handleModelSelect(m)} className={`w-full p-2 rounded-lg border text-left flex justify-between items-center transition ${currentModel.id === m.id ? 'border-amber-500 bg-amber-500/10 text-white' : 'border-slate-800 bg-slate-950/40 text-slate-400'}`}>
+                                            <span>{m.name}</span>
+                                            {m.reqPremium && <span className="text-[9px] bg-red-500/20 text-red-400 px-1.5 py-0.2 rounded uppercase font-bold tracking-wide">Locked</span>}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 
-                            <button onClick={handlePublish} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-1 shadow-lg">
-                                <Icon name="plus" size={12} /> PUSH PRODUCTION NODE
-                            </button>
-                        </div>
-
-                        <div className="flex-1 bg-slate-950 p-4 font-mono text-xs overflow-auto">
-                            {activeTab === 'preview' ? (
-                                <div className="w-full h-full min-h-[280px] border border-slate-800 rounded-lg flex flex-col items-center justify-center bg-slate-900/30 text-center p-6 space-y-4">
-                                    <div className="w-12 h-12 rounded-full bg-slate-950 flex items-center justify-center border border-slate-800">
-                                        <Icon name="laptop" size={20} className="text-slate-600 animate-pulse" />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <span className="text-xs font-bold text-slate-300 block">Workspace Application Iframe</span>
-                                        <p className="text-[10px] text-slate-500 max-w-xs mx-auto">
-                                            Live system active. Code mutations update structural interface rendering cycles automatically.
-                                        </p>
-                                    </div>
+                            <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 min-h-[160px] flex flex-col justify-between">
+                                <div className="text-slate-400 italic leading-relaxed text-[11px]">
+                                    {aiSuggestion || "Stack blocks together and click below to request AI architecture reviews."}
                                 </div>
-                            ) : (
-                                <textarea readOnly value={editorCode} className="w-full h-full min-h-[280px] bg-transparent text-slate-400 resize-none focus:outline-none font-mono text-[11px]" />
-                            )}
+                                <div className="text-[9px] text-slate-600 font-mono mt-2 border-t border-slate-900 pt-2">
+                                    Target Model: {currentModel.idStr}
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="bg-slate-950 px-4 py-1.5 border-t border-slate-800/80 flex items-center justify-between text-[9px] text-slate-500 font-mono">
-                            <span>Vercel Deploy: EDGE_ACTIVE</span>
-                            <span className="text-emerald-500 font-bold">● Synchronized</span>
-                        </div>
+                        <button onClick={queryAiAssistance} disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg font-bold uppercase transition flex items-center justify-center gap-1">
+                            <Icon name="sparkles" size={12} /> {loading ? 'Computing Analysis...' : 'Request AI Block Review'}
+                        </button>
                     </div>
 
                 </div>
             );
         }
 
-        // Render Application context roots
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
